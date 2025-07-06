@@ -46,7 +46,8 @@ export default function TodayHabits({ habits = [], todayLogs = [], onRefresh, is
     
     try {
       const allHabits = await getHabits();
-      const existingLog = (await getHabitLogs(today)).find(log => log.habit_id === habitId);
+      const allLogsToday = await getHabitLogs(today);
+      const existingLog = allLogsToday.find(log => log.habit_id === habitId);
       const habit = allHabits.find(h => h.id === habitId);
 
       if (!habit) throw new Error("Habit not found");
@@ -57,15 +58,18 @@ export default function TodayHabits({ habits = [], todayLogs = [], onRefresh, is
           if (habit.streak_days > 0) {
             await updateHabit(habitId, { streak_days: Math.max(0, habit.streak_days - 1) });
           }
+           toast({ title: "Habit undone.", description: `"${habit.title}" marked as pending.` });
         } else {
           await updateHabitLog(existingLog.id, { status: 'completed', completed_at: new Date().toISOString() });
           const newStreak = (habit.streak_days || 0) + 1;
           await updateHabit(habitId, { streak_days: newStreak, best_streak: Math.max(habit.best_streak || 0, newStreak) });
+           toast({ title: "Masha'Allah!", description: `You completed "${habit.title}"!` });
         }
       } else {
         await createHabitLog({ habit_id: habitId, completion_date: today, status: 'completed', completed_at: new Date().toISOString() });
         const newStreak = (habit.streak_days || 0) + 1;
         await updateHabit(habitId, { streak_days: newStreak, best_streak: Math.max(habit.best_streak || 0, newStreak) });
+         toast({ title: "Masha'Allah!", description: `You completed "${habit.title}"!` });
       }
       
       if (onRefresh) await onRefresh();
@@ -114,7 +118,8 @@ export default function TodayHabits({ habits = [], todayLogs = [], onRefresh, is
   }
 
   const activeHabits = habits.filter(h => h.is_active);
-  const completedCount = todayLogs.filter(log => log.status === 'completed').length;
+  const completedHabitIds = new Set(todayLogs.filter(log => log.status === 'completed').map(l => l.habit_id));
+  const completedCount = activeHabits.filter(h => completedHabitIds.has(h.id)).length;
 
   return (
     <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-md hover:shadow-lg transition-all duration-300 dark:bg-slate-800/50 dark:border-slate-700 dark:hover:bg-slate-800">
@@ -122,7 +127,7 @@ export default function TodayHabits({ habits = [], todayLogs = [], onRefresh, is
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-3 text-gray-900 dark:text-gray-100">
             <Target className="w-6 h-6 text-emerald-600 flex-shrink-0 dark:text-emerald-400" />
-            <span className="truncate">Today's Habits</span>
+            <span className="truncate">Today's Focus</span>
           </CardTitle>
           <Badge variant="outline" className="text-emerald-700 border-emerald-200 flex-shrink-0 dark:text-emerald-300 dark:border-emerald-700">
             {completedCount}/{activeHabits.length}

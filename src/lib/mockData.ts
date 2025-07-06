@@ -13,7 +13,7 @@ export const getMockUser = async (): Promise<User> => {
     return new Promise(resolve => setTimeout(() => resolve(mockUser), 100));
 }
 
-export const updateMockUser = async (updates: Partial<User>): Promise<User> => {
+export const updateUser = async (updates: Partial<User>): Promise<User> => {
     mockUser = { ...mockUser, ...updates };
     return new Promise(resolve => setTimeout(() => resolve(mockUser), 100));
 };
@@ -50,11 +50,11 @@ export const checkDuaSettings = async (email: string): Promise<UserSettings> => 
 
 // Mock Habits
 let mockHabits: Habit[] = [
-  { id: 'habit-1', title: '5 Daily Prayers', is_active: true, streak_days: 12, best_streak: 25, category: 'worship', created_by: 'user-123' },
-  { id: 'habit-2', title: 'Read a page of Quran', is_active: true, streak_days: 5, best_streak: 10, category: 'learning', created_by: 'user-123' },
-  { id: 'habit-3', title: 'Morning walk', is_active: true, streak_days: 21, best_streak: 21, category: 'health', created_by: 'user-123' },
-  { id: 'habit-4', title: 'Call parents', is_active: true, streak_days: 2, best_streak: 30, category: 'community', created_by: 'user-123' },
-  { id: 'habit-5', title: 'Journal before sleep', is_active: false, streak_days: 0, best_streak: 15, category: 'self_care', created_by: 'user-123' },
+  { id: 'habit-1', title: '5 Daily Prayers', is_active: true, streak_days: 0, best_streak: 0, category: 'worship', created_by: 'user-123' },
+  { id: 'habit-2', title: 'Read a page of Quran', is_active: true, streak_days: 0, best_streak: 0, category: 'learning', created_by: 'user-123' },
+  { id: 'habit-3', title: 'Morning walk', is_active: true, streak_days: 0, best_streak: 0, category: 'health', created_by: 'user-123' },
+  { id: 'habit-4', title: 'Call parents', is_active: true, streak_days: 0, best_streak: 0, category: 'community', created_by: 'user-123' },
+  { id: 'habit-5', title: 'Journal before sleep', is_active: false, streak_days: 0, best_streak: 0, category: 'self_care', created_by: 'user-123' },
 ];
 
 export const getHabits = async (): Promise<Habit[]> => {
@@ -62,13 +62,7 @@ export const getHabits = async (): Promise<Habit[]> => {
 }
 
 // Mock HabitLogs
-let mockHabitLogs: HabitLog[] = [
-  { id: 'log-1', habit_id: 'habit-1', completion_date: format(new Date(), 'yyyy-MM-dd'), status: 'completed' },
-  { id: 'log-2', habit_id: 'habit-3', completion_date: format(new Date(), 'yyyy-MM-dd'), status: 'pending' },
-  { id: 'log-3', habit_id: 'habit-1', completion_date: format(subDays(new Date(), 1), 'yyyy-MM-dd'), status: 'completed' },
-  { id: 'log-4', habit_id: 'habit-2', completion_date: format(subDays(new Date(), 1), 'yyyy-MM-dd'), status: 'completed' },
-  { id: 'log-5', habit_id: 'habit-3', completion_date: format(subDays(new Date(), 1), 'yyyy-MM-dd'), status: 'skipped' },
-];
+let mockHabitLogs: HabitLog[] = [];
 
 export const getHabitLogs = async (date: string): Promise<HabitLog[]> => {
     const logsForDate = mockHabitLogs.filter(log => log.completion_date === date);
@@ -133,10 +127,7 @@ export const deleteHabit = async (habitId: string): Promise<{ id: string }> => {
 
 
 // Mock AIInsights
-export const mockAIInsights: AIInsight[] = [
-  { id: 'insight-1', title: 'Reflection on Consistency', message: 'You have been consistent with your morning walk for 21 days! This discipline in your physical health can be a gateway to spiritual discipline. Consider adding a short dhikr during your walk.', insight_type: 'pattern_analysis', priority: 'medium', is_read: false, action_suggestion: 'Try saying "SubhanAllah" 10 times at the start of your walk tomorrow.', created_date: new Date().toISOString() },
-  { id: 'insight-2', title: 'Community Connection', message: 'It seems you missed calling your parents yesterday. Remember, maintaining family ties is a great virtue.', insight_type: 'warning', priority: 'high', is_read: false, action_suggestion: 'Schedule a call with your parents today.', created_date: new Date().toISOString() },
-];
+export const mockAIInsights: AIInsight[] = [];
 
 export const getAIInsights = async (): Promise<AIInsight[]> => {
     return new Promise(resolve => setTimeout(() => resolve(mockAIInsights.filter(i => !i.is_read)), 400));
@@ -178,8 +169,8 @@ export const getDignityDare = async (level: number): Promise<DignityDare | null>
 
 // Mock Prayer Times
 export const mockPrayerTimes: PrayerTime[] = [
-    { name: 'Fajr', time: '5:30 AM', isCompleted: true },
-    { name: 'Dhuhr', time: '1:15 PM', isCompleted: true },
+    { name: 'Fajr', time: '5:30 AM', isCompleted: false },
+    { name: 'Dhuhr', time: '1:15 PM', isCompleted: false },
     { name: 'Asr', time: '4:45 PM', isCompleted: false },
     { name: 'Maghrib', time: '7:00 PM', isCompleted: false },
     { name: 'Isha', time: '8:30 PM', isCompleted: false },
@@ -190,10 +181,7 @@ export const getPrayerTimes = async (): Promise<PrayerTime[]> => {
 }
 
 // Mock Daily Reflections
-let mockDailyReflections: DailyReflection[] = [
-    { id: 'ref-1', reflection_date: format(subDays(new Date(), 1), 'yyyy-MM-dd'), gratitude_entry: 'Alhamdulillah for the rain today.', challenges_faced: 'Waking up for Fajr was difficult.', lessons_learned: 'Starting the day with prayer makes everything else easier.', mood_morning: 3, mood_evening: 4, spiritual_connection: 4, created_by: 'user-123' },
-    { id: 'ref-2', reflection_date: format(subDays(new Date(), 2), 'yyyy-MM-dd'), gratitude_entry: 'Thankful for a productive day at work.', challenges_faced: 'Staying patient in traffic.', lessons_learned: 'Dhikr helps in moments of frustration.', mood_morning: 5, mood_evening: 3, spiritual_connection: 3, created_by: 'user-123' },
-];
+let mockDailyReflections: DailyReflection[] = [];
 
 export const getDailyReflections = async (): Promise<DailyReflection[]> => {
     return new Promise(resolve => setTimeout(() => resolve(mockDailyReflections), 300));
@@ -230,10 +218,7 @@ export const deleteDailyReflection = async (id: string): Promise<{ id: string }>
 }
 
 // Mock Daily Prayer Log
-let mockDailyPrayerLogs: DailyPrayerLog[] = [
-    { id: 'dpl-1', completion_date: format(new Date(), 'yyyy-MM-dd'), fajr_completed: true, dhuhr_completed: true, asr_completed: false, maghrib_completed: false, isha_completed: false, created_by: 'user-123' },
-    { id: 'dpl-2', completion_date: format(subDays(new Date(), 1), 'yyyy-MM-dd'), fajr_completed: true, dhuhr_completed: true, asr_completed: true, maghrib_completed: true, isha_completed: true, created_by: 'user-123' },
-];
+let mockDailyPrayerLogs: DailyPrayerLog[] = [];
 
 export const getDailyPrayerLogs = async (date?: string): Promise<DailyPrayerLog[]> => {
     if (date) {
@@ -241,3 +226,24 @@ export const getDailyPrayerLogs = async (date?: string): Promise<DailyPrayerLog[
     }
     return new Promise(resolve => setTimeout(() => resolve(mockDailyPrayerLogs), 100));
 };
+
+export const updateDailyPrayerLog = async (id: string, updates: Partial<DailyPrayerLog>): Promise<DailyPrayerLog> => {
+    let updatedLog: DailyPrayerLog | undefined;
+    mockDailyPrayerLogs = mockDailyPrayerLogs.map(log => {
+        if (log.id === id) {
+            updatedLog = { ...log, ...updates };
+            return updatedLog;
+        }
+        return log;
+    });
+     return new Promise((resolve, reject) => {
+        if (updatedLog) setTimeout(() => resolve(updatedLog), 150);
+        else reject(new Error("Prayer log not found"));
+    });
+}
+
+export const createDailyPrayerLog = async (newLogData: Omit<DailyPrayerLog, 'id'|'created_by'>): Promise<DailyPrayerLog> => {
+    const newLog: DailyPrayerLog = { ...newLogData, id: `dpl-${Date.now()}`, created_by: 'user-123' };
+    mockDailyPrayerLogs.push(newLog);
+    return new Promise(resolve => setTimeout(() => resolve(newLog), 150));
+}
