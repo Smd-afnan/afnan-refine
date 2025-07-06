@@ -25,23 +25,29 @@ const saveFcmTokenFlow = ai.defineFlow(
     outputSchema: z.object({ success: z.boolean() }),
   },
   async (input) => {
+    // This is where you would interact with your database.
+    // In a real application, you would initialize the Firebase Admin SDK
+    // and save the token to a user's document in Firestore.
+    
     console.log(`Received token for user ${input.userId}: ${input.token}`);
     
     // =================================================================
-    // IMPORTANT: In a real application with a database (like Firestore),
-    // you would save the token here.
-    //
-    // Example using Firestore:
+    // Firestore Example:
+    // This code would run on a server, not in the browser. You would need
+    // to have the Firebase Admin SDK configured.
     //
     // import { getFirestore } from 'firebase-admin/firestore';
     // const db = getFirestore();
+    //
+    // // Save the token to a 'users' collection, identified by the user's ID.
     // await db.collection('users').doc(input.userId).set({
     //   fcmToken: input.token,
-    // }, { merge: true });
+    // }, { merge: true }); // Use merge:true to avoid overwriting other user data
     //
     // =================================================================
 
-    console.log(`[Mock] FCM Token for user ${input.userId} has been "saved".`);
+    // For now, we'll just log that we "saved" it.
+    console.log(`[Mock] FCM Token for user ${input.userId} has been "saved" to the database.`);
     
     return { success: true };
   }
