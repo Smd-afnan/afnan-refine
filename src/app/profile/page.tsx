@@ -127,11 +127,11 @@ export default function ProfilePage() {
         <div className="text-center lg:text-left">
           <div className="flex items-center justify-center lg:justify-start gap-3 mb-4">
             <UserIcon className="w-8 h-8 text-purple-600" />
-            <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-purple-800 to-purple-600 bg-clip-text text-transparent font-headline">
+            <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-purple-800 to-purple-600 dark:from-purple-500 dark:to-purple-700 bg-clip-text text-transparent font-headline">
               Your Profile
             </h1>
           </div>
-          <p className="text-lg text-purple-700 font-medium">
+          <p className="text-lg text-purple-700 dark:text-purple-300 font-medium">
             Track your growth journey and celebrate your achievements.
           </p>
         </div>

@@ -102,11 +102,11 @@ export default function HabitsPage() {
         <div className="text-center lg:text-left">
           <div className="flex items-center justify-center lg:justify-start gap-3 mb-4">
             <Target className="w-8 h-8 text-emerald-600" />
-            <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-emerald-800 to-emerald-600 bg-clip-text text-transparent font-headline">
+            <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-emerald-800 to-emerald-600 dark:from-emerald-400 dark:to-emerald-600 bg-clip-text text-transparent font-headline">
               Your Habits
             </h1>
           </div>
-          <p className="text-lg text-emerald-700 font-medium">
+          <p className="text-lg text-emerald-700 dark:text-emerald-300 font-medium">
             Build discipline through consistent, meaningful actions.
           </p>
         </div>
@@ -138,7 +138,7 @@ export default function HabitsPage() {
                 setEditingHabit(null);
                 setShowForm(true);
               }}
-              className="bg-emerald-600 hover:bg-emerald-700 shadow-lg"
+              className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 shadow-lg"
             >
               <Plus className="w-4 h-4 mr-2" />
               New Habit

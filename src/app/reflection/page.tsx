@@ -142,11 +142,11 @@ export default function ReflectionPage() {
         <div className="text-center lg:text-left">
           <div className="flex items-center justify-center lg:justify-start gap-3 mb-4">
             <Calendar className="w-8 h-8 text-blue-600" />
-            <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-800 to-blue-600 bg-clip-text text-transparent font-headline">
+            <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-800 to-blue-600 dark:from-blue-500 dark:to-blue-700 bg-clip-text text-transparent font-headline">
               Daily Reflection
             </h1>
           </div>
-          <p className="text-lg text-blue-700 font-medium">
+          <p className="text-lg text-blue-700 dark:text-blue-300 font-medium">
             Connect with your inner self and track your spiritual journey.
           </p>
         </div>
@@ -159,7 +159,7 @@ export default function ReflectionPage() {
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 ${
                 activeTab === tab.id 
-                  ? "bg-blue-600 hover:bg-blue-700" 
+                  ? "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600" 
                   : "hover:bg-blue-50 dark:hover:bg-slate-700"
               }`}
             >

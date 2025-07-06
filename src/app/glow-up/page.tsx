@@ -39,7 +39,7 @@ export default function GlowUpPage() {
         <div className="text-center">
           <div className="flex items-center justify-center gap-3 mb-4">
             <Star className="w-8 h-8 text-amber-500" />
-            <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-amber-600 to-amber-800 bg-clip-text text-transparent font-headline">
+            <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-amber-600 to-amber-800 dark:from-amber-400 dark:to-amber-500 bg-clip-text text-transparent font-headline">
               The Glow-Up Path
             </h1>
           </div>

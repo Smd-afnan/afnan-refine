@@ -147,11 +147,11 @@ export default function Dashboard() {
             ) : (
               <Moon className="w-8 h-8 text-indigo-500" />
             )}
-            <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-emerald-800 to-emerald-600 bg-clip-text text-transparent font-headline">
+            <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-emerald-800 to-emerald-600 dark:from-emerald-400 dark:to-emerald-600 bg-clip-text text-transparent font-headline">
               {greeting}! 🌟
             </h1>
           </div>
-          <p className="text-lg text-emerald-700 font-medium">
+          <p className="text-lg text-emerald-700 dark:text-emerald-300 font-medium">
             {t('dashboard_tagline')}
           </p>
         </div>
@@ -200,7 +200,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <Card className="bg-gradient-to-r from-purple-600 to-indigo-800 text-white border-0 shadow-2xl">
+        <Card className="bg-gradient-to-r from-purple-600 to-indigo-800 text-white border-0 shadow-2xl dark:from-purple-700 dark:to-indigo-900">
           <CardContent className="p-8 text-center">
             <Sparkles className="w-12 h-12 mx-auto mb-4 text-purple-200" />
             <h3 className="text-2xl font-bold mb-2 font-headline">{t('no_track_title')}</h3>

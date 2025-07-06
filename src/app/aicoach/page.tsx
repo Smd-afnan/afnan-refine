@@ -114,18 +114,18 @@ export default function AICoachPage() {
         <div className="text-center lg:text-left">
           <div className="flex items-center justify-center lg:justify-start gap-3 mb-4">
             <Brain className="w-8 h-8 text-purple-600" />
-            <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-purple-800 to-purple-600 bg-clip-text text-transparent font-headline">
+            <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-purple-800 to-purple-600 dark:from-purple-500 dark:to-purple-700 bg-clip-text text-transparent font-headline">
               Murabbi Core
             </h1>
           </div>
-          <p className="text-lg text-purple-700 font-medium mb-6">
+          <p className="text-lg text-purple-700 dark:text-purple-300 font-medium mb-6">
             A mirror to your soul, powered by wisdom.
           </p>
           
           <Button 
             onClick={generateDailyInsight}
             disabled={isGenerating}
-            className="bg-purple-600 hover:bg-purple-700 shadow-lg"
+            className="bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 shadow-lg"
           >
             {isGenerating ? (
               <>
