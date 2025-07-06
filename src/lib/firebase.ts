@@ -1,6 +1,8 @@
 
 import { initializeApp, getApp, getApps } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
+import { saveFcmToken } from "@/ai/flows/save-fcm-token";
+import { getMockUser } from "./mockData";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -49,7 +51,15 @@ export const requestNotificationPermission = async () => {
 
       if (fcmToken) {
         console.log('FCM Token:', fcmToken);
-        // In a real app, you would send this token to your server and associate it with the current user.
+        // Send the token to your backend to be saved
+        try {
+            const user = await getMockUser();
+            await saveFcmToken({ userId: user.id, token: fcmToken });
+            console.log("FCM token successfully sent to the backend.");
+        } catch (error) {
+            console.error("Failed to send FCM token to backend:", error);
+        }
+
         return fcmToken;
       } else {
         console.log('No registration token available. Request permission to generate one.');
