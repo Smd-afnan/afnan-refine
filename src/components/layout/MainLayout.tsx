@@ -7,7 +7,7 @@ import {
   Home, 
   Target, 
   Brain, 
-  User, 
+  User as UserIcon, 
   Calendar,
   Settings,
   Sparkles,
@@ -26,11 +26,13 @@ import {
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import { useNotifier } from "@/components/notifications/NotificationProvider";
-import type { UserSettings } from "@/types";
-import { getMockUserSettings, updateMockUserSettings } from '@/lib/mockData';
+import type { User, UserSettings } from "@/types";
+import { getMockUser, getMockUserSettings, updateMockUserSettings, checkDuaSettings } from '@/lib/mockData';
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { createPageUrl } from "@/lib/utils";
 import { scheduleDailyNotifications } from "@/lib/notifications";
+import OpeningDuaScreen from "@/components/dua/OpeningDuaScreen";
+import { format } from "date-fns";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -38,6 +40,10 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
   const notifier = useNotifier();
   const { t, currentLanguage, changeLanguage } = useTranslation();
+
+  const [user, setUser] = useState<User | null>(null);
+  const [showDuaScreen, setShowDuaScreen] = useState(false);
+  const [duaCheckComplete, setDuaCheckComplete] = useState(false);
 
   const [, setForceUpdate] = useState(0);
   useEffect(() => {
@@ -47,15 +53,26 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   }, []);
 
   useEffect(() => {
-    const loadUserSettings = async () => {
+    const initApp = async () => {
       try {
-        const settings = await getMockUserSettings("believer@soulrefine.app");
+        const userData = await getMockUser();
+        setUser(userData);
+        const settings = await checkDuaSettings(userData.email);
         setUserSettings(settings);
+        
+        const today = format(new Date(), 'yyyy-MM-dd');
+        
+        if (settings.show_opening_dua && settings.last_dua_shown_date !== today) {
+          setShowDuaScreen(true);
+        } else {
+          setDuaCheckComplete(true);
+        }
       } catch (error) {
-        console.error("Error loading user settings:", error);
+        console.error("Error initializing app:", error);
+        setDuaCheckComplete(true);
       }
     };
-    loadUserSettings();
+    initApp();
   }, []);
   
   useEffect(() => {
@@ -74,6 +91,15 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
     }
   }, [notifier, userSettings?.notifications_enabled, notifier?.permission]);
 
+  const handleDuaComplete = async () => {
+    setShowDuaScreen(false);
+    setDuaCheckComplete(true);
+    if (user) {
+      const today = format(new Date(), 'yyyy-MM-dd');
+      await updateMockUserSettings(user.email, { last_dua_shown_date: today });
+    }
+  };
+
   const updateUserSetting = async (key: keyof UserSettings, value: any) => {
     if (!userSettings) return;
     
@@ -90,12 +116,12 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   };
 
   const navigationItems = [
-    { title: t("dashboard"), url: createPageUrl("Dashboard"), icon: Home, description: t("dashboard_desc") },
+    { title: t("dashboard"), url: "/", icon: Home, description: t("dashboard_desc") },
     { title: t("habits"), url: createPageUrl("Habits"), icon: Target, description: t("habits_desc") },
     { title: t("murabbi_core"), url: createPageUrl("AICoach"), icon: Brain, description: t("murabbi_desc") },
     { title: t("reflection"), url: createPageUrl("Reflection"), icon: Calendar, description: t("reflection_desc") },
     { title: t("glow_up_path"), url: createPageUrl("Glow-Up"), icon: Star, description: t("glow_up_desc") },
-    { title: t("profile"), url: createPageUrl("Profile"), icon: User, description: t("profile_desc") }
+    { title: t("profile"), url: createPageUrl("Profile"), icon: UserIcon, description: t("profile_desc") }
   ];
 
   const handleNotificationRequest = async () => {
@@ -116,6 +142,21 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
     changeLanguage(newLanguage);
     await updateUserSetting('app_language', newLanguage);
   };
+  
+  if (showDuaScreen && user) {
+    return <OpeningDuaScreen onComplete={handleDuaComplete} user={user} />;
+  }
+
+  if (!duaCheckComplete) {
+    return (
+      <div className="fixed inset-0 bg-gradient-to-br from-slate-50 to-emerald-50 flex items-center justify-center z-50 p-4 dark:from-slate-900 dark:to-emerald-900">
+        <div className="text-center space-y-4">
+          <Sparkles className="w-12 h-12 text-emerald-600 mx-auto animate-spin" />
+          <p className="text-emerald-700 font-medium font-headline dark:text-emerald-300">{t('preparing_journey')}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 dark:from-slate-900 dark:via-slate-800 dark:to-emerald-900`}>

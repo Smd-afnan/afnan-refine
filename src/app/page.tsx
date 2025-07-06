@@ -9,8 +9,8 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
-import { getHabits, getHabitLogs, getAIInsights, checkDuaSettings, getMockUser, updateMockUserSettings, islamicWisdoms } from "@/lib/mockData";
-import type { Habit, HabitLog, AIInsight, UserSettings, User } from "@/types";
+import { getHabits, getHabitLogs, getAIInsights, islamicWisdoms } from "@/lib/mockData";
+import type { Habit, HabitLog, AIInsight } from "@/types";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 
 import DashboardStats from "@/components/dashboard/DashboardStats";
@@ -20,9 +20,9 @@ import ProgressRing from "@/components/dashboard/ProgressRing";
 import HabitHeatmap from "@/components/dashboard/HabitHeatmap";
 import QuickActions from "@/components/dashboard/QuickActions";
 import DignityNudgeSection from "@/components/dashboard/DignityNudgeSection";
-import OpeningDuaScreen from "@/components/dua/OpeningDuaScreen";
 import BarakahBoostCard from "@/components/dashboard/BarakahBoostCard";
 import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Dashboard() {
   const [habits, setHabits] = useState<Habit[]>([]);
@@ -30,44 +30,16 @@ export default function Dashboard() {
   const [insights, setInsights] = useState<AIInsight[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [greeting, setGreeting] = useState("");
-  const [showDuaScreen, setShowDuaScreen] = useState(false);
-  const [duaCheckComplete, setDuaCheckComplete] = useState(false);
   const [showBarakahBoost, setShowBarakahBoost] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
   const { t } = useTranslation();
   const { toast } = useToast();
 
   const today = format(new Date(), 'yyyy-MM-dd');
 
   useEffect(() => {
-    const init = async () => {
-      const userData = await getMockUser();
-      setUser(userData);
-      const settings = await checkDuaSettings(userData.email);
-
-      if (settings.show_opening_dua && settings.last_dua_shown_date !== today) {
-        setShowDuaScreen(true);
-      } else {
-        setDuaCheckComplete(true);
-      }
-    }
-    init();
+    loadDashboardData();
+    setDynamicGreeting();
   }, []);
-
-  useEffect(() => {
-    if (duaCheckComplete && !showDuaScreen) {
-      loadDashboardData();
-      setDynamicGreeting();
-    }
-  }, [duaCheckComplete, showDuaScreen]);
-
-  const handleDuaComplete = async () => {
-    setShowDuaScreen(false);
-    setDuaCheckComplete(true);
-     if (user) {
-        await updateMockUserSettings(user.email, { last_dua_shown_date: today });
-      }
-  };
 
   const setDynamicGreeting = () => {
     const hour = new Date().getHours();
@@ -102,16 +74,28 @@ export default function Dashboard() {
     setIsLoading(false);
   };
 
-  if (showDuaScreen && user) {
-    return <OpeningDuaScreen onComplete={handleDuaComplete} user={user} />;
-  }
-
-  if (!duaCheckComplete || isLoading) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="text-center space-y-4">
-          <Sparkles className="w-12 h-12 text-emerald-600 mx-auto animate-spin" />
-          <p className="text-emerald-700 font-medium font-headline">{t('preparing_journey')}</p>
+      <div className="p-4 lg:p-8 space-y-8">
+        <div className="space-y-2">
+            <Skeleton className="h-10 w-64" />
+            <Skeleton className="h-6 w-96" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <Skeleton className="h-64 lg:col-span-1 rounded-lg" />
+            <div className="lg:col-span-3 grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <Skeleton className="h-28 rounded-lg" />
+                <Skeleton className="h-28 rounded-lg" />
+                <Skeleton className="h-28 rounded-lg" />
+                <Skeleton className="h-28 rounded-lg" />
+            </div>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Skeleton className="h-96 lg:col-span-2 rounded-lg" />
+            <div className="space-y-6">
+                <Skeleton className="h-48 rounded-lg" />
+                <Skeleton className="h-48 rounded-lg" />
+            </div>
         </div>
       </div>
     );
