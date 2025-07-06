@@ -9,8 +9,8 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
-import { getHabits, getHabitLogs, getAIInsights, checkDuaSettings, getMockUser, MockUserSettings, updateMockUserSettings, getBarakahBoostWisdom, islamicWisdoms } from "@/lib/mockData";
-import type { Habit, HabitLog, AIInsight, UserSettings, User, IslamicWisdom } from "@/types";
+import { getHabits, getHabitLogs, getAIInsights, checkDuaSettings, getMockUser, updateMockUserSettings, islamicWisdoms } from "@/lib/mockData";
+import type { Habit, HabitLog, AIInsight, UserSettings, User } from "@/types";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 
 import DashboardStats from "@/components/dashboard/DashboardStats";
@@ -34,7 +34,6 @@ export default function Dashboard() {
   const [duaCheckComplete, setDuaCheckComplete] = useState(false);
   const [showBarakahBoost, setShowBarakahBoost] = useState(false);
   const [user, setUser] = useState<User | null>(null);
-  const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
   const { t } = useTranslation();
   const { toast } = useToast();
 
@@ -45,7 +44,6 @@ export default function Dashboard() {
       const userData = await getMockUser();
       setUser(userData);
       const settings = await checkDuaSettings(userData.email);
-      setUserSettings(settings);
 
       if (settings.show_opening_dua && settings.last_dua_shown_date !== today) {
         setShowDuaScreen(true);

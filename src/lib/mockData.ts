@@ -42,7 +42,7 @@ export const checkDuaSettings = async (email: string): Promise<UserSettings> => 
 }
 
 // Mock Habits
-export const mockHabits: Habit[] = [
+let mockHabits: Habit[] = [
   { id: 'habit-1', title: '5 Daily Prayers', is_active: true, streak_days: 12, best_streak: 25, category: 'worship', created_by: 'user-123' },
   { id: 'habit-2', title: 'Read a page of Quran', is_active: true, streak_days: 5, best_streak: 10, category: 'learning', created_by: 'user-123' },
   { id: 'habit-3', title: 'Morning walk', is_active: true, streak_days: 21, best_streak: 21, category: 'health', created_by: 'user-123' },
@@ -101,6 +101,24 @@ export const updateHabit = async(habitId: string, updates: Partial<Habit>): Prom
         if (updatedHabit) setTimeout(() => resolve(updatedHabit!), 150);
         else reject(new Error("Habit not found"));
     });
+}
+
+export const createHabit = async (habitData: Omit<Habit, 'id' | 'streak_days' | 'best_streak' | 'created_by'>): Promise<Habit> => {
+    const newHabit: Habit = {
+        id: `habit-${Date.now()}`,
+        ...habitData,
+        streak_days: 0,
+        best_streak: 0,
+        created_by: 'user-123'
+    };
+    mockHabits.unshift(newHabit);
+    return new Promise(resolve => setTimeout(() => resolve(newHabit), 150));
+}
+
+export const deleteHabit = async (habitId: string): Promise<{ id: string }> => {
+    mockHabits = mockHabits.filter(h => h.id !== habitId);
+    mockHabitLogs = mockHabitLogs.filter(l => l.habit_id !== habitId);
+    return new Promise(resolve => setTimeout(() => resolve({ id: habitId }), 150));
 }
 
 
