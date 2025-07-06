@@ -18,16 +18,19 @@ const nextConfig: NextConfig = {
       asyncWebAssembly: true,
     };
 
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        stream: require.resolve('stream-browserify'),
-        crypto: require.resolve('crypto-browserify'),
-        path: require.resolve('path-browserify'),
-        util: require.resolve('util/'),
-        fs: false,
-      };
-    }
+    // The firebase-admin SDK and its dependencies need polyfills for certain
+    // Node.js modules when being bundled, even for server-side code in some
+    // Next.js environments (like the Edge runtime build pass).
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      stream: require.resolve('stream-browserify'),
+      crypto: require.resolve('crypto-browserify'),
+      path: require.resolve('path-browserify'),
+      util: require.resolve('util/'),
+      os: require.resolve('os-browserify/browser'),
+      constants: require.resolve('constants-browserify'),
+      fs: false, // fs cannot be polyfilled, but we can tell webpack to ignore it.
+    };
     
     return config;
   },
