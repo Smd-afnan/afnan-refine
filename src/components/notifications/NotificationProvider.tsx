@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
-type NotificationContextType = {
+export type NotificationContextType = {
   permission: NotificationPermission;
   requestPermission: () => void;
   notify: (title: string, options?: NotificationOptions) => void;
@@ -40,7 +40,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         if (perm === 'granted') {
             toast({
                 title: 'Notifications Enabled',
-                description: 'You will now receive notifications.',
+                description: 'You will now receive reminders for prayers and habits.',
             });
         } else {
              toast({

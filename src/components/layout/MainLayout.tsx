@@ -30,6 +30,7 @@ import type { UserSettings } from "@/types";
 import { getMockUserSettings, updateMockUserSettings } from '@/lib/mockData';
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { createPageUrl } from "@/lib/utils";
+import { scheduleDailyNotifications } from "@/lib/notifications";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -66,6 +67,12 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       }
     }
   }, [userSettings, currentLanguage, changeLanguage]);
+  
+  useEffect(() => {
+    if (notifier && userSettings?.notifications_enabled && notifier.permission === 'granted') {
+      scheduleDailyNotifications(notifier);
+    }
+  }, [notifier, userSettings?.notifications_enabled, notifier?.permission]);
 
   const updateUserSetting = async (key: keyof UserSettings, value: any) => {
     if (!userSettings) return;
