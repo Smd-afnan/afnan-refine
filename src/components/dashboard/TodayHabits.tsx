@@ -61,7 +61,7 @@ export default function TodayHabits({ habits = [], todayLogs = [], onRefresh, is
     const fetchPrayers = async () => {
       setIsPrayerLoading(true);
       try {
-        let logs = await getDailyPrayerLogs(today);
+        const logs = await getDailyPrayerLogs(today);
         if (logs.length > 0) {
           setPrayerLog(logs[0]);
         } else {

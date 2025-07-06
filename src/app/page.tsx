@@ -1,6 +1,7 @@
+
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns";
 import { 
   Sun,
@@ -36,19 +37,14 @@ export default function Dashboard() {
 
   const today = format(new Date(), 'yyyy-MM-dd');
 
-  useEffect(() => {
-    loadDashboardData();
-    setDynamicGreeting();
-  }, []);
-
-  const setDynamicGreeting = () => {
+  const setDynamicGreeting = useCallback(() => {
     const hour = new Date().getHours();
     if (hour < 12) setGreeting(t('good_morning'));
     else if (hour < 17) setGreeting(t('good_afternoon'));
     else setGreeting(t('good_evening'));
-  };
-
-  const loadDashboardData = async () => {
+  }, [t]);
+  
+  const loadDashboardData = useCallback(async () => {
     setIsLoading(true);
     try {
       const [habitsData, logsData, insightsData] = await Promise.all([
@@ -72,7 +68,12 @@ export default function Dashboard() {
       setInsights([]);
     }
     setIsLoading(false);
-  };
+  }, [today, toast]);
+
+  useEffect(() => {
+    loadDashboardData();
+    setDynamicGreeting();
+  }, [loadDashboardData, setDynamicGreeting]);
 
   if (isLoading) {
     return (

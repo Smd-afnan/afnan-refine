@@ -1,7 +1,8 @@
+
 "use client";
 
-import React, { useState, useEffect } from "react";
-import type { DailyReflection, Habit, HabitLog, DailyPrayerLog } from "@/types";
+import React, { useState, useEffect, useCallback } from "react";
+import type { DailyReflection, Habit, HabitLog } from "@/types";
 import { getDailyReflections, createDailyReflection, updateDailyReflection, getHabits, getAllHabitLogs, getDailyPrayerLogs } from "@/lib/mockData";
 import { generateMuraqqabahReport } from "@/ai/flows/generate-muraqqabah-report";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,8 @@ import CoachingChat from "@/components/aicoach/CoachingChat";
 import WeeklyReport from "@/components/aicoach/WeeklyReport";
 
 export default function AICoachPage() {
-  const [insights, setInsights] = useState<any[]>([]);
+  // TODO: Replace 'any' with a more specific type for insights if possible
+  const [insights, setInsights] = useState<any[]>([]); // eslint-disable-line @typescript-eslint/no-explicit-any
   const [habits, setHabits] = useState<Habit[]>([]);
   const [recentLogs, setRecentLogs] = useState<HabitLog[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -23,11 +25,7 @@ export default function AICoachPage() {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadCoachData();
-  }, []);
-
-  const loadCoachData = async () => {
+  const loadCoachData = useCallback(async () => {
     setIsLoading(true);
     try {
       const [reflectionsData, habitsData, logsData] = await Promise.all([
@@ -53,7 +51,11 @@ export default function AICoachPage() {
       toast({ title: "Error", description: "Could not load coach data.", variant: "destructive" });
     }
     setIsLoading(false);
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    loadCoachData();
+  }, [loadCoachData]);
 
   const generateDailyInsight = async () => {
     if (isGenerating) return;
@@ -64,7 +66,7 @@ export default function AICoachPage() {
       const today = format(new Date(), 'yyyy-MM-dd');
       const dayOfWeek = format(new Date(), 'eeee');
       
-      let allReflections = await getDailyReflections();
+      const allReflections = await getDailyReflections();
       let todaysReflection = allReflections.find(r => r.reflection_date === today);
 
       if (!todaysReflection) {
@@ -93,7 +95,7 @@ export default function AICoachPage() {
       });
 
       toast({ title: "Report Ready!", description: "Your Muraqqabah Report for today is complete." });
-      loadCoachData();
+      await loadCoachData();
     } catch (error) {
       console.error("Error generating insight:", error);
       toast({ title: "Error", description: "Could not generate report.", variant: "destructive" });

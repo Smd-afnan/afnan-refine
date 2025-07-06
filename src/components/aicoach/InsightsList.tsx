@@ -1,14 +1,14 @@
 "use client";
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Lightbulb, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface InsightsListProps {
-  insights: any[];
+  insights: { id: string; date: string; ago: string; report: { soul_reflection: string; inner_meaning: string; mujadah: string; barakah_boost: string } }[];
   isLoading: boolean;
 }
 

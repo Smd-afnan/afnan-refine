@@ -1,6 +1,7 @@
+
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import type { Habit } from "@/types";
 import { getHabits, createHabit, updateHabit, deleteHabit } from "@/lib/mockData";
 import { Button } from "@/components/ui/button";
@@ -24,15 +25,7 @@ export default function HabitsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadHabits();
-  }, []);
-
-  useEffect(() => {
-    filterHabits();
-  }, [habits, searchTerm, selectedCategory]);
-
-  const loadHabits = async () => {
+  const loadHabits = useCallback(async () => {
     setIsLoading(true);
     try {
       const data = await getHabits();
@@ -42,9 +35,13 @@ export default function HabitsPage() {
       toast({ title: "Error", description: "Could not load habits.", variant: "destructive" });
     }
     setIsLoading(false);
-  };
+  }, [toast]);
 
-  const filterHabits = () => {
+  useEffect(() => {
+    loadHabits();
+  }, [loadHabits]);
+
+  const filterHabits = useCallback(() => {
     let currentHabits = habits;
 
     if (searchTerm) {
@@ -58,7 +55,11 @@ export default function HabitsPage() {
     }
 
     setFilteredHabits(currentHabits);
-  };
+  }, [habits, searchTerm, selectedCategory]);
+
+  useEffect(() => {
+    filterHabits();
+  }, [filterHabits]);
 
   const handleSubmit = async (habitData: Partial<Habit>) => {
     try {
@@ -90,7 +91,7 @@ export default function HabitsPage() {
 
       setShowForm(false);
       setEditingHabit(null);
-      loadHabits();
+      await loadHabits();
     } catch (error) {
       console.error("Error saving habit:", error);
       toast({ title: "Error", description: "Could not save habit.", variant: "destructive" });
@@ -111,6 +112,7 @@ export default function HabitsPage() {
 
         if (habitToDelete) {
             try {
+                // To "delete" from the backend for notifications, we mark it as inactive
                 await saveHabit({
                     userId: 'user-123',
                     habit: {
@@ -127,7 +129,7 @@ export default function HabitsPage() {
             }
         }
         
-        loadHabits();
+        await loadHabits();
       } catch (error) {
         console.error("Error deleting habit:", error);
         toast({ title: "Error", description: "Could not delete habit.", variant: "destructive" });

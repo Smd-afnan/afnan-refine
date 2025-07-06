@@ -76,7 +76,7 @@ export const getHabits = async (): Promise<Habit[]> => {
     return Promise.resolve(habits);
 }
 export const updateHabit = async(habitId: string, updates: Partial<Habit>): Promise<Habit> => {
-    let habits = loadFromLocalStorage<Habit[]>('habits', defaultHabits);
+    const habits = loadFromLocalStorage<Habit[]>('habits', defaultHabits);
     let updatedHabit: Habit | undefined;
     const index = habits.findIndex(h => h.id === habitId);
     if (index > -1) {
@@ -88,7 +88,7 @@ export const updateHabit = async(habitId: string, updates: Partial<Habit>): Prom
     return Promise.reject(new Error("Habit not found"));
 }
 export const createHabit = async (habitData: Omit<Habit, 'id' | 'streak_days' | 'best_streak' | 'created_by'>): Promise<Habit> => {
-    let habits = loadFromLocalStorage<Habit[]>('habits', defaultHabits);
+    const habits = loadFromLocalStorage<Habit[]>('habits', defaultHabits);
     const newHabit: Habit = {
         id: `habit-${Date.now()}`, ...habitData, streak_days: 0, best_streak: 0, created_by: 'user-123'
     };
@@ -97,8 +97,8 @@ export const createHabit = async (habitData: Omit<Habit, 'id' | 'streak_days' | 
     return Promise.resolve(newHabit);
 }
 export const deleteHabit = async (habitId: string): Promise<{ id: string }> => {
-    let habits = loadFromLocalStorage<Habit[]>('habits', defaultHabits);
-    let logs = loadFromLocalStorage<HabitLog[]>('habitLogs', []);
+    const habits = loadFromLocalStorage<Habit[]>('habits', defaultHabits);
+    const logs = loadFromLocalStorage<HabitLog[]>('habitLogs', []);
     saveToLocalStorage('habits', habits.filter(h => h.id !== habitId));
     saveToLocalStorage('habitLogs', logs.filter(l => l.habit_id !== habitId));
     return Promise.resolve({ id: habitId });
@@ -131,7 +131,7 @@ export const updateHabitLog = async (logId: string, updates: Partial<HabitLog>):
     return Promise.reject(new Error("Log not found"));
 }
 export const createHabitLog = async (newLogData: Omit<HabitLog, 'id'>): Promise<HabitLog> => {
-    let logs = loadFromLocalStorage<HabitLog[]>('habitLogs', []);
+    const logs = loadFromLocalStorage<HabitLog[]>('habitLogs', []);
     const newLog: HabitLog = { ...newLogData, id: `log-${Date.now()}` };
     logs.push(newLog);
     saveToLocalStorage('habitLogs', logs);
@@ -144,7 +144,7 @@ export const getDailyReflections = async (): Promise<DailyReflection[]> => {
     return Promise.resolve(reflections.sort((a,b) => b.reflection_date.localeCompare(a.reflection_date)));
 };
 export const createDailyReflection = async (data: Omit<DailyReflection, 'id' | 'created_by'>): Promise<DailyReflection> => {
-    let reflections = loadFromLocalStorage<DailyReflection[]>('dailyReflections', []);
+    const reflections = loadFromLocalStorage<DailyReflection[]>('dailyReflections', []);
     const newReflection: DailyReflection = {
         id: `ref-${Date.now()}`, ...data, created_by: 'user-123'
     };
@@ -169,7 +169,7 @@ export const updateDailyReflection = async (id: string, updates: Partial<DailyRe
     return Promise.reject(new Error("Reflection not found"));
 };
 export const deleteDailyReflection = async (id: string): Promise<{ id: string }> => {
-    let reflections = loadFromLocalStorage<DailyReflection[]>('dailyReflections', []);
+    const reflections = loadFromLocalStorage<DailyReflection[]>('dailyReflections', []);
     saveToLocalStorage('dailyReflections', reflections.filter(r => r.id !== id));
     return Promise.resolve({ id });
 }
@@ -183,7 +183,7 @@ export const getDailyPrayerLogs = async (date?: string): Promise<DailyPrayerLog[
     return Promise.resolve(logs);
 };
 export const createDailyPrayerLog = async (newLogData: Omit<DailyPrayerLog, 'id'|'created_by'>): Promise<DailyPrayerLog> => {
-    let logs = loadFromLocalStorage<DailyPrayerLog[]>('dailyPrayerLogs', []);
+    const logs = loadFromLocalStorage<DailyPrayerLog[]>('dailyPrayerLogs', []);
     const newLog: DailyPrayerLog = { ...newLogData, id: `dpl-${Date.now()}`, created_by: 'user-123' };
     logs.push(newLog);
     saveToLocalStorage('dailyPrayerLogs', logs);

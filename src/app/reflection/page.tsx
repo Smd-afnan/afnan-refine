@@ -1,14 +1,14 @@
+
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import type { DailyReflection, Habit } from "@/types";
 import { getDailyReflections, createDailyReflection, updateDailyReflection, deleteDailyReflection, getHabits } from "@/lib/mockData";
 import { generateReflectionInsights } from "@/ai/flows/generate-reflection-insights";
 import { Button } from "@/components/ui/button";
-import { Calendar, Heart, Brain, Star, Sparkles, Save } from "lucide-react";
-import { format, formatDistanceToNow } from "date-fns";
+import { Calendar, Heart, Brain, Sparkles } from "lucide-react";
+import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
-
 import ReflectionForm from "@/components/reflection/ReflectionForm";
 import ReflectionHistory from "@/components/reflection/ReflectionHistory";
 import MoodTracker from "@/components/reflection/MoodTracker";
@@ -16,11 +16,11 @@ import AIReflectionInsights from "@/components/reflection/AIReflectionInsights";
 
 export default function ReflectionPage() {
   const [reflections, setReflections] = useState<DailyReflection[]>([]);
-  const [selectedReflections, setSelectedReflections] = useState<Record<string, boolean>>({});
   const [habits, setHabits] = useState<Habit[]>([]);
+  const [selectedReflections, setSelectedReflections] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("today");
-  const [aiInsights, setAiInsights] = useState<any>(null);
+  const [aiInsights, setAiInsights] = useState<any>(null); // TODO: Replace 'any' with a more specific type
   const [isGeneratingInsights, setIsGeneratingInsights] = useState(false);
   const { toast } = useToast();
 
@@ -33,11 +33,7 @@ export default function ReflectionPage() {
     return { id: '', reflection_date: today, created_by: 'user-123' };
   }, [reflections, today]);
 
-  useEffect(() => {
-    loadReflectionData();
-  }, []);
-
-  const loadReflectionData = async () => {
+  const loadReflectionData = useCallback(async () => {
     setIsLoading(true);
     try {
       const [reflectionsData, habitsData] = await Promise.all([
@@ -53,7 +49,12 @@ export default function ReflectionPage() {
       toast({ title: "Error", description: "Could not load reflection data.", variant: "destructive" });
     }
     setIsLoading(false);
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    loadReflectionData();
+  }, [loadReflectionData]);
+
 
   const handleSaveReflection = async (reflectionData: Partial<DailyReflection>) => {
     try {

@@ -1,6 +1,7 @@
+
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import type { User, Habit, HabitLog, DailyReflection } from "@/types";
 import { getMockUser, updateMockUser, getHabits, getAllHabitLogs, getDailyReflections } from "@/lib/mockData";
 import { Button } from "@/components/ui/button";
@@ -26,11 +27,7 @@ export default function ProfilePage() {
   const [editData, setEditData] = useState<Partial<User>>({});
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadProfileData();
-  }, []);
-
-  const loadProfileData = async () => {
+  const loadProfileData = useCallback(async () => {
     setIsLoading(true);
     try {
       const [userData, habitsData, logsData, reflectionsData] = await Promise.all([
@@ -50,7 +47,11 @@ export default function ProfilePage() {
       toast({ title: "Error", description: "Failed to load profile data.", variant: "destructive" });
     }
     setIsLoading(false);
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    loadProfileData();
+  }, [loadProfileData]);
 
   const handleSaveProfile = async () => {
     if (!user) return;

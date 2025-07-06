@@ -5,9 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Brain } from 'lucide-react';
 
 interface WeeklyReportProps {
-    habits: any[];
-    recentLogs: any[];
-    isLoading: boolean;
+    habits?: any[]; // Marked as optional as they are unused
+    recentLogs?: any[]; // Marked as optional as they are unused
+    isLoading?: boolean; // Marked as optional as it is unused
 }
 
 export default function WeeklyReport({ habits, recentLogs, isLoading }: WeeklyReportProps) {

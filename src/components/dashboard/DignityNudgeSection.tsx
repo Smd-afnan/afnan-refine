@@ -5,7 +5,7 @@ import { Sparkles } from "lucide-react";
 import DignityNudgeCard from "../dignity/DignityNudgeCard";
 
 export default function DignityNudgeSection({ userLevel = 1 }: { userLevel: number }) {
-  const handleDareCompleted = (completedDare: any) => {
+  const handleDareCompleted = (completedDare: { id: string; text: string }) => {
     // In a real app, this would trigger achievements, update streaks, etc.
     console.log("Dare completed:", completedDare);
   };

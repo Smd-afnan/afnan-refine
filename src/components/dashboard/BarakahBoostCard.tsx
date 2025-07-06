@@ -18,7 +18,7 @@ export default function BarakahBoostCard({ trigger, wisdomPool }: BarakahBoostCa
     if (trigger) {
       fetchWisdom();
     }
-  }, [trigger]);
+  }, [trigger, fetchWisdom]);
 
   const fetchWisdom = () => {
     try {
@@ -47,7 +47,7 @@ export default function BarakahBoostCard({ trigger, wisdomPool }: BarakahBoostCa
             <h3 className="text-xl font-bold font-headline">Barakah Boost!</h3>
             <Star className="w-6 h-6 text-amber-200" />
           </div>
-          <p className="text-lg italic text-amber-50 mb-3 leading-relaxed">"{wisdom.content}"</p>
+          <p className="text-lg italic text-amber-50 mb-3 leading-relaxed">&quot;{wisdom.content}&quot;</p>
           <p className="font-semibold text-sm text-amber-200">- {wisdom.source}</p>
         </CardContent>
       </Card>

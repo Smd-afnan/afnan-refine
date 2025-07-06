@@ -41,7 +41,7 @@ export default function HabitHeatmap({ habits: initialHabits = [] }: { habits: H
       setWeekData([]);
       setIsLoading(false);
     }
-  }, [habits]);
+  }, [habits, loadWeekData]);
 
   const loadWeekData = async () => {
     setIsLoading(true);

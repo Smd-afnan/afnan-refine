@@ -22,8 +22,12 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@700&display=swap"
-          rel="stylesheet"
+ rel="stylesheet"
         />
+        {/*
+          Custom fonts should ideally be added in pages/_document.js to load for all pages.
+          See: https://nextjs.org/docs/messages/no-page-custom-font
+        */}
          <link href="https://fonts.googleapis.com/css2?family=Amiri&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">

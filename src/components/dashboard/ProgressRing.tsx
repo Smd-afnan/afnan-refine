@@ -31,12 +31,12 @@ export default function ProgressRing({ progress = 0, isLoading, totalHabits = 0,
   }
 
   const getMotivationalMessage = (prog: number) => {
-    if (prog === 100) return { message: "Perfect! You're unstoppable!", emoji: "🔥" };
+    if (prog === 100) return { message: "Perfect! You&apos;re unstoppable!", emoji: "🔥" };
     if (prog >= 80) return { message: "Outstanding! Keep this energy!", emoji: "⭐" };
     if (prog >= 60) return { message: "Great momentum! Stay consistent!", emoji: "📈" };
     if (prog >= 40) return { message: "Good progress! Every step counts!", emoji: "💪" };
     if (prog >= 20) return { message: "Nice start! Build the rhythm!", emoji: "🌱" };
-    return { message: "Ready to begin? Let's make it happen!", emoji: "🚀" };
+    return { message: "Ready to begin? Let&apos;s make it happen!", emoji: "🚀" };
   };
 
   const motivation = getMotivationalMessage(safeProgress);
@@ -75,7 +75,7 @@ export default function ProgressRing({ progress = 0, isLoading, totalHabits = 0,
             <span className="text-lg">{motivation.emoji}</span>
             <p className="text-sm text-gray-600 font-medium dark:text-gray-300">{motivation.message}</p>
           </div>
-          {safeProgress > 0 && <p className="text-xs text-emerald-600 italic dark:text-emerald-500">"And Allah will reward the grateful." (3:144)</p>}
+          {safeProgress > 0 && <p className="text-xs text-emerald-600 italic dark:text-emerald-500">&quot;And Allah will reward the grateful.&quot; (3:144)</p>}
         </div>
       </CardContent>
     </Card>
