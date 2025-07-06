@@ -1,48 +1,32 @@
-// This is a basic service worker file.
 
-const CACHE_NAME = 'soulrefine-cache-v1';
-const urlsToCache = [
-  '/',
-];
+// Use the Firebase V9 JS SDK for the service worker
+importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');
 
-// Install a service worker
-self.addEventListener('install', event => {
-  // Perform install steps
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(function(cache) {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
-      })
-  );
-});
+// This is a special variable that will be replaced by the query parameter.
+const firebaseConfigStr = new URL(location).searchParams.get("firebaseConfig");
 
-// Cache and return requests
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(function(response) {
-        // Cache hit - return response
-        if (response) {
-          return response;
-        }
-        return fetch(event.request);
-      }
-    )
-  );
-});
+if (firebaseConfigStr) {
+    const firebaseConfig = JSON.parse(decodeURIComponent(firebaseConfigStr));
 
-// This is where you would handle push notifications
-self.addEventListener('push', event => {
-  const data = event.data.json();
-  console.log('Push notification received:', data);
+    firebase.initializeApp(firebaseConfig);
 
-  const title = data.title || 'SoulRefine';
-  const options = {
-    body: data.body || 'You have a new message.',
-    icon: '/icon-192x192.png',
-    badge: '/icon-192x192.png'
-  };
+    const messaging = firebase.messaging();
 
-  event.waitUntil(self.registration.showNotification(title, options));
-});
+    messaging.onBackgroundMessage((payload) => {
+        console.log(
+            "[sw.js] Received background message ",
+            payload
+        );
+
+        const notificationTitle = payload.notification.title;
+        const notificationOptions = {
+            body: payload.notification.body,
+            icon: '/logo.png' // Make sure you have a logo.png in your public folder
+        };
+
+        self.registration.showNotification(notificationTitle, notificationOptions);
+    });
+} else {
+    console.log("Firebase config not found in service worker. Notifications will not work in background.");
+}

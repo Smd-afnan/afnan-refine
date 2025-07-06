@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -33,6 +34,8 @@ import { createPageUrl } from "@/lib/utils";
 import { scheduleDailyNotifications } from "@/lib/notifications";
 import OpeningDuaScreen from "@/components/dua/OpeningDuaScreen";
 import { format } from "date-fns";
+import { registerServiceWorker, requestNotificationPermission, onMessageListener } from "@/lib/firebase";
+import { useToast } from "@/hooks/use-toast";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -40,6 +43,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
   const notifier = useNotifier();
   const { t, currentLanguage, changeLanguage } = useTranslation();
+  const { toast } = useToast();
 
   const [user, setUser] = useState<User | null>(null);
   const [showDuaScreen, setShowDuaScreen] = useState(false);
@@ -92,16 +96,20 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   }, [notifier, userSettings?.notifications_enabled, notifier?.permission]);
 
   useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').then(registration => {
-          console.log('SW registered: ', registration);
-        }).catch(registrationError => {
-          console.log('SW registration failed: ', registrationError);
+    registerServiceWorker();
+
+    // Listen for foreground messages
+    onMessageListener()
+      .then((payload: any) => {
+        toast({
+          title: payload.notification.title,
+          description: payload.notification.body,
         });
-      });
-    }
-  }, []);
+        console.log('Received foreground message: ', payload);
+      })
+      .catch((err) => console.log('Failed to listen for foreground messages: ', err));
+
+  }, [toast]);
 
   const handleDuaComplete = async () => {
     setShowDuaScreen(false);
@@ -137,10 +145,20 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   ];
 
   const handleNotificationRequest = async () => {
-    if (notifier) {
-      notifier.requestPermission();
-      await updateUserSetting('notifications_enabled', true);
+    const token = await requestNotificationPermission();
+    if (token) {
+        toast({
+            title: 'Notifications Enabled',
+            description: 'You are now set up to receive push notifications.',
+        });
+    } else {
+        toast({
+            title: 'Permission Required',
+            description: 'Notification permission was not granted. Please enable it in your browser settings.',
+            variant: 'destructive',
+        });
     }
+    await updateUserSetting('notifications_enabled', !!token);
   };
 
   const toggleDarkMode = async () => {
