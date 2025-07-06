@@ -45,6 +45,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  full_name?: string;
 }
 
 export interface OpeningDua {
@@ -74,4 +75,28 @@ export interface PrayerTime {
   name: string;
   time: string;
   isCompleted: boolean;
+}
+
+export interface DailyReflection {
+  id: string;
+  reflection_date: string; // YYYY-MM-DD
+  gratitude_entry?: string;
+  challenges_faced?: string;
+  lessons_learned?: string;
+  mood_morning?: number; // 1-5
+  mood_evening?: number; // 1-5
+  spiritual_connection?: number; // 1-5
+  muraqqabah_report?: Record<string, any>; // JSON from AI
+  created_by: string;
+}
+
+export interface DailyPrayerLog {
+    id: string;
+    completion_date: string; // YYYY-MM-DD
+    fajr_completed: boolean;
+    dhuhr_completed: boolean;
+    asr_completed: boolean;
+    maghrib_completed: boolean;
+    isha_completed: boolean;
+    created_by: string;
 }

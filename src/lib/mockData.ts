@@ -1,16 +1,23 @@
-import type { Habit, HabitLog, AIInsight, UserSettings, User, OpeningDua, IslamicWisdom, DignityDare, PrayerTime } from '@/types';
-import { format } from 'date-fns';
+import type { Habit, HabitLog, AIInsight, UserSettings, User, OpeningDua, IslamicWisdom, DignityDare, PrayerTime, DailyReflection, DailyPrayerLog } from '@/types';
+import { format, subDays } from 'date-fns';
 
 // Mock User
-export const mockUser: User = {
+let mockUser: User = {
   id: 'user-123',
   email: 'believer@soulrefine.app',
   name: 'Spiritual Seeker',
+  full_name: 'Spiritual Seeker'
 };
 
 export const getMockUser = async (): Promise<User> => {
     return new Promise(resolve => setTimeout(() => resolve(mockUser), 100));
 }
+
+export const updateMockUser = async (updates: Partial<User>): Promise<User> => {
+    mockUser = { ...mockUser, ...updates };
+    return new Promise(resolve => setTimeout(() => resolve(mockUser), 100));
+};
+
 
 // Mock UserSettings
 let mockUserSettings: UserSettings = {
@@ -58,6 +65,9 @@ export const getHabits = async (): Promise<Habit[]> => {
 let mockHabitLogs: HabitLog[] = [
   { id: 'log-1', habit_id: 'habit-1', completion_date: format(new Date(), 'yyyy-MM-dd'), status: 'completed' },
   { id: 'log-2', habit_id: 'habit-3', completion_date: format(new Date(), 'yyyy-MM-dd'), status: 'pending' },
+  { id: 'log-3', habit_id: 'habit-1', completion_date: format(subDays(new Date(), 1), 'yyyy-MM-dd'), status: 'completed' },
+  { id: 'log-4', habit_id: 'habit-2', completion_date: format(subDays(new Date(), 1), 'yyyy-MM-dd'), status: 'completed' },
+  { id: 'log-5', habit_id: 'habit-3', completion_date: format(subDays(new Date(), 1), 'yyyy-MM-dd'), status: 'skipped' },
 ];
 
 export const getHabitLogs = async (date: string): Promise<HabitLog[]> => {
@@ -178,3 +188,56 @@ export const mockPrayerTimes: PrayerTime[] = [
 export const getPrayerTimes = async (): Promise<PrayerTime[]> => {
     return new Promise(resolve => setTimeout(() => resolve(mockPrayerTimes), 250));
 }
+
+// Mock Daily Reflections
+let mockDailyReflections: DailyReflection[] = [
+    { id: 'ref-1', reflection_date: format(subDays(new Date(), 1), 'yyyy-MM-dd'), gratitude_entry: 'Alhamdulillah for the rain today.', challenges_faced: 'Waking up for Fajr was difficult.', lessons_learned: 'Starting the day with prayer makes everything else easier.', mood_morning: 3, mood_evening: 4, spiritual_connection: 4, created_by: 'user-123' },
+    { id: 'ref-2', reflection_date: format(subDays(new Date(), 2), 'yyyy-MM-dd'), gratitude_entry: 'Thankful for a productive day at work.', challenges_faced: 'Staying patient in traffic.', lessons_learned: 'Dhikr helps in moments of frustration.', mood_morning: 5, mood_evening: 3, spiritual_connection: 3, created_by: 'user-123' },
+];
+
+export const getDailyReflections = async (): Promise<DailyReflection[]> => {
+    return new Promise(resolve => setTimeout(() => resolve(mockDailyReflections), 300));
+};
+
+export const createDailyReflection = async (data: Omit<DailyReflection, 'id' | 'created_by'>): Promise<DailyReflection> => {
+    const newReflection: DailyReflection = {
+        id: `ref-${Date.now()}`,
+        ...data,
+        created_by: 'user-123'
+    };
+    mockDailyReflections.unshift(newReflection);
+    return new Promise(resolve => setTimeout(() => resolve(newReflection), 150));
+};
+
+export const updateDailyReflection = async (id: string, updates: Partial<DailyReflection>): Promise<DailyReflection> => {
+    let updatedReflection: DailyReflection | undefined;
+    mockDailyReflections = mockDailyReflections.map(r => {
+        if (r.id === id) {
+            updatedReflection = { ...r, ...updates };
+            return updatedReflection;
+        }
+        return r;
+    });
+    return new Promise((resolve, reject) => {
+        if (updatedReflection) setTimeout(() => resolve(updatedReflection!), 150);
+        else reject(new Error("Reflection not found"));
+    });
+};
+
+export const deleteDailyReflection = async (id: string): Promise<{ id: string }> => {
+    mockDailyReflections = mockDailyReflections.filter(r => r.id !== id);
+    return new Promise(resolve => setTimeout(() => resolve({ id }), 150));
+}
+
+// Mock Daily Prayer Log
+let mockDailyPrayerLogs: DailyPrayerLog[] = [
+    { id: 'dpl-1', completion_date: format(new Date(), 'yyyy-MM-dd'), fajr_completed: true, dhuhr_completed: true, asr_completed: false, maghrib_completed: false, isha_completed: false, created_by: 'user-123' },
+    { id: 'dpl-2', completion_date: format(subDays(new Date(), 1), 'yyyy-MM-dd'), fajr_completed: true, dhuhr_completed: true, asr_completed: true, maghrib_completed: true, isha_completed: true, created_by: 'user-123' },
+];
+
+export const getDailyPrayerLogs = async (date?: string): Promise<DailyPrayerLog[]> => {
+    if (date) {
+        return new Promise(resolve => setTimeout(() => resolve(mockDailyPrayerLogs.filter(log => log.completion_date === date)), 100));
+    }
+    return new Promise(resolve => setTimeout(() => resolve(mockDailyPrayerLogs), 100));
+};
