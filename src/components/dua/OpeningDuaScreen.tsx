@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Volume2, VolumeX, Settings } from "lucide-react";
-import { format } from "date-fns";
 import type { OpeningDua, UserSettings, User } from '@/types';
 import { getOpeningDuas, getMockUserSettings, updateMockUserSettings } from '@/lib/mockData';
 import { useToast } from '@/hooks/use-toast';
@@ -20,7 +19,7 @@ export default function OpeningDuaScreen({ onComplete, user }: { onComplete: () 
     const loadDuaAndSettings = async () => {
       setIsLoading(true);
       try {
-        const settings = await getMockUserSettings(user.email);
+        const settings = await getMockUserSettings();
         setUserSettings(settings);
 
         const allDuas = await getOpeningDuas();
@@ -48,12 +47,13 @@ export default function OpeningDuaScreen({ onComplete, user }: { onComplete: () 
     };
 
     loadDuaAndSettings();
-  }, [user.email, onComplete, toast]);
+  }, [onComplete, toast]);
 
   const handleUpdateSetting = async (key: keyof UserSettings, value: boolean) => {
-    const newSettings = { ...userSettings!, [key]: value };
+    if (!userSettings) return;
+    const newSettings = { ...userSettings, [key]: value };
     setUserSettings(newSettings);
-    await updateMockUserSettings(user.email, { [key]: value });
+    await updateMockUserSettings({ [key]: value });
   };
 
   if (isLoading || !currentDua) {
@@ -79,10 +79,10 @@ export default function OpeningDuaScreen({ onComplete, user }: { onComplete: () 
           <div className="space-y-4">
             <div className="flex items-center justify-center gap-3 mb-6">
               <Sparkles className="w-8 h-8 text-amber-300 animate-pulse" />
-              <h1 className="text-2xl font-bold text-white font-headline">Begin with Du'a</h1>
+              <h1 className="text-2xl font-bold text-white font-headline">Begin with Du&apos;a</h1>
               <Sparkles className="w-8 h-8 text-amber-300 animate-pulse" />
             </div>
-            <p className="text-purple-100 text-sm">"{currentDua.spiritual_focus}"</p>
+            <p className="text-purple-100 text-sm">&quot;{currentDua.spiritual_focus}&quot;</p>
           </div>
 
           <div className="space-y-6">
@@ -94,7 +94,7 @@ export default function OpeningDuaScreen({ onComplete, user }: { onComplete: () 
             )}
             { (userSettings?.preferred_language !== 'arabic_only') && (
               <div className="bg-white/10 rounded-2xl p-6 backdrop-blur-sm">
-                <p className="text-xl text-white leading-relaxed">"{currentDua.translation}"</p>
+                <p className="text-xl text-white leading-relaxed">&quot;{currentDua.translation}&quot;</p>
               </div>
             )}
           </div>
@@ -113,11 +113,11 @@ export default function OpeningDuaScreen({ onComplete, user }: { onComplete: () 
 
           {showSettings && (
             <div className="bg-white/10 rounded-2xl p-6 backdrop-blur-sm text-left space-y-4">
-              <h3 className="text-white font-semibold mb-4">Du'a Settings</h3>
+              <h3 className="text-white font-semibold mb-4">Du&apos;a Settings</h3>
               <div className="grid grid-cols-1 gap-3 text-sm">
-                <label className="flex items-center gap-3 text-purple-100"><input type="checkbox" checked={userSettings?.show_opening_dua} onChange={(e) => handleUpdateSetting('show_opening_dua', e.target.checked)} className="rounded" />Show du'a on app launch</label>
-                <label className="flex items-center gap-3 text-purple-100"><input type="checkbox" checked={userSettings?.randomize_daily_dua} onChange={(e) => handleUpdateSetting('randomize_daily_dua', e.target.checked)} className="rounded" />Randomize daily du'a</label>
-                <label className="flex items-center gap-3 text-purple-100"><input type="checkbox" checked={userSettings?.contextual_dua_mode} onChange={(e) => handleUpdateSetting('contextual_dua_mode', e.target.checked)} className="rounded" />Show contextual du'a</label>
+                <label className="flex items-center gap-3 text-purple-100"><input type="checkbox" checked={userSettings?.show_opening_dua} onChange={(e) => handleUpdateSetting('show_opening_dua', e.target.checked)} className="rounded" />Show du&apos;a on app launch</label>
+                <label className="flex items-center gap-3 text-purple-100"><input type="checkbox" checked={userSettings?.randomize_daily_dua} onChange={(e) => handleUpdateSetting('randomize_daily_dua', e.target.checked)} className="rounded" />Randomize daily du&apos;a</label>
+                <label className="flex items-center gap-3 text-purple-100"><input type="checkbox" checked={userSettings?.contextual_dua_mode} onChange={(e) => handleUpdateSetting('contextual_dua_mode', e.target.checked)} className="rounded" />Show contextual du&apos;a</label>
               </div>
             </div>
           )}

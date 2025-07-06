@@ -197,7 +197,7 @@ export default function TodayHabits({ habits = [], todayLogs = [], onRefresh, is
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-3 text-gray-900 dark:text-gray-100">
             <Target className="w-6 h-6 text-emerald-600 flex-shrink-0 dark:text-emerald-400" />
-            <span className="truncate">Today's Focus</span>
+            <span className="truncate">Today&apos;s Focus</span>
           </CardTitle>
           <Badge variant="outline" className="text-emerald-700 border-emerald-200 flex-shrink-0 dark:text-emerald-300 dark:border-emerald-700">
             {completedCount}/{activeHabits.length}
@@ -264,7 +264,7 @@ export default function TodayHabits({ habits = [], todayLogs = [], onRefresh, is
                 return (
                   <div key={habit.id} className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-200 ${isCompleted ? 'border-emerald-200 bg-emerald-50/50 dark:bg-emerald-900/30 dark:border-emerald-800' : 'border-gray-100 hover:border-emerald-200 hover:bg-emerald-50/30 dark:border-slate-700 dark:hover:border-emerald-700 dark:hover:bg-slate-700/50'}`}>
                     <div className="flex items-center gap-4 flex-1 min-w-0">
-                      <div className={`text-2xl flex-shrink-0 ${isCompleted ? 'opacity-75' : ''}`}>{categoryIcons[habit.category] || "🎯"}</div>
+                      <div className={`text-2xl flex-shrink-0 ${isCompleted ? 'opacity-75' : ''}`}>{categoryIcons[habit.category] || "&🎯;"}</div>
                       <div className="flex-1 min-w-0">
                         <h4 className={`font-semibold truncate ${isCompleted ? 'text-emerald-800 line-through dark:text-emerald-400' : 'text-gray-900 dark:text-gray-100'}`}>{habit.title}</h4>
                         <div className="flex items-center gap-2 mt-1 flex-wrap">

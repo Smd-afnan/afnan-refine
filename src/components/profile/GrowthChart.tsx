@@ -2,16 +2,15 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
-import type { Habit, HabitLog } from '@/types';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import type { HabitLog } from '@/types';
 import { format, subDays, eachDayOfInterval } from 'date-fns';
 
 interface GrowthChartProps {
-  habits: Habit[];
   recentLogs: HabitLog[];
 }
 
-export default function GrowthChart({ habits, recentLogs }: GrowthChartProps) {
+export default function GrowthChart({ recentLogs }: GrowthChartProps) {
   const last30Days = eachDayOfInterval({
     start: subDays(new Date(), 29),
     end: new Date()

@@ -1,5 +1,4 @@
 import type { Habit, HabitLog, AIInsight, UserSettings, User, OpeningDua, IslamicWisdom, DignityDare, PrayerTime, DailyReflection, DailyPrayerLog } from '@/types';
-import { format, subDays } from 'date-fns';
 
 // --- LocalStorage Helper Functions ---
 const isBrowser = typeof window !== 'undefined';
@@ -58,17 +57,17 @@ export const updateMockUser = async (updates: Partial<User>): Promise<User> => {
 };
 
 // --- UserSettings ---
-export const getMockUserSettings = async (email: string): Promise<UserSettings> => {
+export const getMockUserSettings = async (): Promise<UserSettings> => {
     const settings = loadFromLocalStorage<UserSettings>('userSettings', defaultUserSettings);
     return Promise.resolve(settings);
 }
-export const updateMockUserSettings = async (email: string, updates: Partial<UserSettings>): Promise<UserSettings> => {
+export const updateMockUserSettings = async (updates: Partial<UserSettings>): Promise<UserSettings> => {
     const currentSettings = loadFromLocalStorage<UserSettings>('userSettings', defaultUserSettings);
     const newSettings = { ...currentSettings, ...updates };
     saveToLocalStorage('userSettings', newSettings);
     return Promise.resolve(newSettings);
 }
-export const checkDuaSettings = async (email: string): Promise<UserSettings> => getMockUserSettings(email);
+export const checkDuaSettings = async (): Promise<UserSettings> => getMockUserSettings();
 
 // --- Habits ---
 export const getHabits = async (): Promise<Habit[]> => {

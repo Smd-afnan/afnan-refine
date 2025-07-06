@@ -1,6 +1,6 @@
 
 import { initializeApp, getApp, getApps } from "firebase/app";
-import { getMessaging, getToken, onMessage } from "firebase/messaging";
+import { getMessaging, getToken, onMessage, type MessagePayload } from "firebase/messaging";
 import { saveFcmToken } from "@/ai/flows/save-fcm-token";
 import { getMockUser } from "./mockData";
 
@@ -77,7 +77,7 @@ export const requestNotificationPermission = async () => {
 
 // This function will listen for messages when the app is in the foreground
 export const onMessageListener = () =>
-  new Promise((resolve) => {
+  new Promise<MessagePayload>((resolve) => {
     if(fcmMessaging) {
         onMessage(fcmMessaging, (payload) => {
             resolve(payload);

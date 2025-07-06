@@ -69,7 +69,7 @@ export default function ProgressRing({ progress = 0, isLoading, totalHabits = 0,
         <div className="text-center">
           <div className="flex items-center justify-center gap-2 mb-2">
             <Target className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Today's Progress</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Today&apos;s Progress</h3>
           </div>
           <div className="flex items-center justify-center gap-2 mb-2">
             <span className="text-lg">{motivation.emoji}</span>

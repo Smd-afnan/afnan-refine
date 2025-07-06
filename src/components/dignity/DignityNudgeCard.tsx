@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Check, Circle, Gift, Heart, Smile, Sparkles } from "lucide-react";
+import { Check, Circle, Sparkles } from "lucide-react";
 import type { DignityDare } from '@/types';
 import { getDignityDare } from '@/lib/mockData';
 import { cn } from '@/lib/utils';

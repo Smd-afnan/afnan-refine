@@ -95,7 +95,7 @@ export default function DashboardStats({ habits = [], todayLogs = [], streakData
                  "Ready for a fresh start? Your journey begins now!"}
               </p>
             </div>
-            <p className="text-xs text-emerald-600 dark:text-emerald-400">"And whoever relies upon Allah - then He is sufficient for him." (65:3)</p>
+            <p className="text-xs text-emerald-600 dark:text-emerald-400">&quot;And whoever relies upon Allah - then He is sufficient for him.&quot; (65:3)</p>
           </CardContent>
         </Card>
       )}

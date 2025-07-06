@@ -78,6 +78,20 @@ export interface PrayerTime {
   isCompleted: boolean;
 }
 
+export interface MuraqqabahReport {
+  soul_reflection: string;
+  inner_meaning: string;
+  mujahadah: string;
+  barakah_boost: string;
+}
+
+export interface ReflectionInsightReport {
+  soul_reflection: string;
+  inner_meaning: string;
+  todays_mujahadah: string;
+  barakah_boost: string;
+}
+
 export interface DailyReflection {
   id: string;
   reflection_date: string; // YYYY-MM-DD
@@ -87,7 +101,7 @@ export interface DailyReflection {
   mood_morning?: number; // 1-5
   mood_evening?: number; // 1-5
   spiritual_connection?: number; // 1-5
-  muraqqabah_report?: Record<string, any>; // JSON from AI
+  muraqqabah_report?: MuraqqabahReport;
   created_by: string;
 }
 

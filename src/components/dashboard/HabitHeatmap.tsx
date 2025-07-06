@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar, TrendingUp, Flame } from "lucide-react";
@@ -34,16 +34,7 @@ export default function HabitHeatmap({ habits: initialHabits = [] }: { habits: H
     fetchHabits();
   }, [initialHabits]);
 
-  useEffect(() => {
-    if (habits.length > 0) {
-      loadWeekData();
-    } else {
-      setWeekData([]);
-      setIsLoading(false);
-    }
-  }, [habits, loadWeekData]);
-
-  const loadWeekData = async () => {
+  const loadWeekData = useCallback(async () => {
     setIsLoading(true);
     try {
       const days: DayData[] = [];
@@ -58,7 +49,6 @@ export default function HabitHeatmap({ habits: initialHabits = [] }: { habits: H
       }
       
       const allLogs = await getAllHabitLogs();
-      
       for (let i = 6; i >= 0; i--) {
         const date = subDays(today, i);
         const dateStr = format(date, 'yyyy-MM-dd');
@@ -76,7 +66,16 @@ export default function HabitHeatmap({ habits: initialHabits = [] }: { habits: H
       console.error("Error loading week data:", error);
     }
     setIsLoading(false);
-  };
+  }, [habits]);
+
+  useEffect(() => {
+    if (habits.length > 0) {
+      loadWeekData();
+    } else {
+      setWeekData([]);
+      setIsLoading(false);
+    }
+  }, [habits, loadWeekData]);
 
   const getIntensityColor = (rate: number) => {
     if (rate >= 90) return 'bg-emerald-600 shadow-lg shadow-emerald-200 dark:shadow-emerald-900';
@@ -106,13 +105,14 @@ export default function HabitHeatmap({ habits: initialHabits = [] }: { habits: H
   }
 
   const avgCompletionRate = weekData.reduce((sum, day) => sum + day.completionRate, 0) / 7;
+
   const streak = weekData.reduce((count, day, index) => {
       const isStreakDay = day.completionRate > 0;
-      if (!isStreakDay) return 0;
-      if (index === 0) return 1;
-      const prevDay = weekData[index - 1];
-      return prevDay.completionRate > 0 ? count + 1 : 1;
-  }, 0);
+      if (index === weekData.length - 1 && isStreakDay) {
+          return weekData.slice().reverse().findIndex(d => d.completionRate <= 0) + 1 || weekData.length;
+      }
+      return count;
+  }, 0) > 0 ? weekData.slice().reverse().findIndex(d => d.completionRate <= 0) + 1 || weekData.length : 0;
 
   return (
     <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-md hover:shadow-lg transition-all duration-300 dark:bg-slate-800/50 dark:border-slate-700 dark:hover:bg-slate-800">
@@ -131,7 +131,7 @@ export default function HabitHeatmap({ habits: initialHabits = [] }: { habits: H
         </div>
         <div className="flex items-center justify-between text-xs text-gray-500 mb-3 dark:text-gray-400"><span>Less</span><div className="flex gap-1"><div className="w-3 h-3 rounded bg-gray-200 dark:bg-gray-700"></div><div className="w-3 h-3 rounded bg-emerald-200 dark:bg-emerald-800"></div><div className="w-3 h-3 rounded bg-emerald-400 dark:bg-emerald-600"></div><div className="w-3 h-3 rounded bg-emerald-600 dark:bg-emerald-400"></div></div><span>More</span></div>
         {weekData.some(d => d.completionRate > 0) && (
-          <div className="bg-emerald-50 rounded-lg p-3 space-y-2 dark:bg-emerald-900/30">
+          <div className="bg-emerald-50 rounded-lg p-3 space-y-2 dark:bg-slate-700">
             <div className="flex items-center justify-between text-sm"><div className="flex items-center gap-2"><TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /><span className="font-medium text-emerald-800 dark:text-emerald-200">Weekly Average:</span></div><span className="font-bold text-emerald-700 dark:text-emerald-300">{Math.round(avgCompletionRate)}%</span></div>
             {streak > 0 && <div className="flex items-center justify-between text-sm"><div className="flex items-center gap-2"><Flame className="w-4 h-4 text-orange-500" /><span className="font-medium text-emerald-800 dark:text-emerald-200">Current Streak:</span></div><span className="font-bold text-orange-600 dark:text-orange-400">{streak} {streak > 1 ? "days" : "day"}</span></div>}
           </div>

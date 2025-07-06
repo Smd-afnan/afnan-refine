@@ -10,7 +10,7 @@
  */
 
 import type { NotificationContextType } from '@/components/notifications/NotificationProvider';
-import type { DailyPrayerLog, Habit, HabitLog, IslamicWisdom } from '@/types';
+import type { DailyPrayerLog } from '@/types';
 import { getHabits, getHabitLogs, getDailyPrayerLogs, islamicWisdoms } from '@/lib/mockData';
 import { format, differenceInMilliseconds } from 'date-fns';
 

@@ -2,8 +2,8 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import type { DailyReflection, Habit } from "@/types";
-import { getDailyReflections, createDailyReflection, updateDailyReflection, deleteDailyReflection, getHabits } from "@/lib/mockData";
+import type { DailyReflection, ReflectionInsightReport } from "@/types";
+import { getDailyReflections, createDailyReflection, updateDailyReflection, deleteDailyReflection } from "@/lib/mockData";
 import { generateReflectionInsights } from "@/ai/flows/generate-reflection-insights";
 import { Button } from "@/components/ui/button";
 import { Calendar, Heart, Brain, Sparkles } from "lucide-react";
@@ -16,11 +16,10 @@ import AIReflectionInsights from "@/components/reflection/AIReflectionInsights";
 
 export default function ReflectionPage() {
   const [reflections, setReflections] = useState<DailyReflection[]>([]);
-  const [habits, setHabits] = useState<Habit[]>([]);
   const [selectedReflections, setSelectedReflections] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("today");
-  const [aiInsights, setAiInsights] = useState<any>(null); // TODO: Replace 'any' with a more specific type
+  const [aiInsights, setAiInsights] = useState<ReflectionInsightReport | null>(null);
   const [isGeneratingInsights, setIsGeneratingInsights] = useState(false);
   const { toast } = useToast();
 
@@ -36,14 +35,8 @@ export default function ReflectionPage() {
   const loadReflectionData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [reflectionsData, habitsData] = await Promise.all([
-        getDailyReflections(),
-        getHabits()
-      ]);
-      
+      const reflectionsData = await getDailyReflections();
       setReflections(reflectionsData);
-      setHabits(habitsData);
-      
     } catch (error) {
       console.error("Error loading reflection data:", error);
       toast({ title: "Error", description: "Could not load reflection data.", variant: "destructive" });
@@ -125,7 +118,7 @@ export default function ReflectionPage() {
       setActiveTab("insights");
     } catch (error) {
       console.error("Error generating AI insights:", error);
-      setAiInsights({ error: "Sorry, I couldn't generate insights at this moment. Please try again later." });
+      setAiInsights({ error: "Sorry, I couldn't generate insights at this moment. Please try again later." } as any);
     }
     setIsGeneratingInsights(false);
   };

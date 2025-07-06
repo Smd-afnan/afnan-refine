@@ -47,7 +47,7 @@ export default function ReflectionForm({ reflection, onSave, isLoading }: Reflec
     <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg dark:bg-slate-800/50 dark:border-slate-700">
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
-            <span>Today's Reflection</span>
+            <span>Today&apos;s Reflection</span>
             {isSaved && <span className="text-sm font-medium flex items-center gap-1 text-emerald-600"><CheckCircle className="w-4 h-4"/> Saved</span>}
         </CardTitle>
       </CardHeader>

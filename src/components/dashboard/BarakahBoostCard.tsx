@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Star } from "lucide-react";
 import type { IslamicWisdom } from '@/types';
@@ -14,13 +14,7 @@ export default function BarakahBoostCard({ trigger, wisdomPool }: BarakahBoostCa
   const [wisdom, setWisdom] = useState<IslamicWisdom | null>(null);
   const [show, setShow] = useState(false);
 
-  useEffect(() => {
-    if (trigger) {
-      fetchWisdom();
-    }
-  }, [trigger, fetchWisdom]);
-
-  const fetchWisdom = () => {
+  const fetchWisdom = useCallback(() => {
     try {
       if (wisdomPool.length > 0) {
         const randomWisdom = wisdomPool[Math.floor(Math.random() * wisdomPool.length)];
@@ -32,7 +26,13 @@ export default function BarakahBoostCard({ trigger, wisdomPool }: BarakahBoostCa
     } catch (error) {
       console.error("Error fetching wisdom:", error);
     }
-  };
+  }, [wisdomPool]);
+
+  useEffect(() => {
+    if (trigger) {
+      fetchWisdom();
+    }
+  }, [trigger, fetchWisdom]);
 
   if (!show || !wisdom) {
     return null;

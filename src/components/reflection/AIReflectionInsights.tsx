@@ -4,9 +4,10 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Sparkles } from 'lucide-react';
+import type { ReflectionInsightReport } from '@/types';
 
 interface AIReflectionInsightsProps {
-  insights: any;
+  insights: (ReflectionInsightReport & { error?: string }) | null;
   isGenerating: boolean;
 }
 
@@ -36,7 +37,7 @@ export default function AIReflectionInsights({ insights, isGenerating }: AIRefle
         </CardHeader>
         <CardContent>
           <p className="text-gray-600 dark:text-gray-400">
-            Select reflections from the "History" tab and click "Generate Insights" to see what The Inner Guide has to say.
+            Select reflections from the &quot;History&quot; tab and click &quot;Generate Insights&quot; to see what The Inner Guide has to say.
           </p>
         </CardContent>
       </Card>
@@ -76,7 +77,7 @@ export default function AIReflectionInsights({ insights, isGenerating }: AIRefle
             <p>{insights.inner_meaning}</p>
         </div>
         <div>
-            <h3 className="font-semibold text-lg">🛠️ Today's Mujahadah</h3>
+            <h3 className="font-semibold text-lg">🛠️ Today&apos;s Mujahadah</h3>
             <p>{insights.todays_mujahadah}</p>
         </div>
         <div>

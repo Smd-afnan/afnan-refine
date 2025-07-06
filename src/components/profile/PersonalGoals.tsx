@@ -3,14 +3,13 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { CheckSquare, Target } from 'lucide-react';
-import type { User, Habit } from '@/types';
+import type { Habit } from '@/types';
 
 interface PersonalGoalsProps {
-  user: User;
   habits: Habit[];
 }
 
-export default function PersonalGoals({ user, habits }: PersonalGoalsProps) {
+export default function PersonalGoals({ habits }: PersonalGoalsProps) {
   // Mock goals for now
   const goals = [
     { text: "Establish all 5 daily prayers consistently.", completed: habits.some(h => h.title.includes("Prayer") && h.streak_days >= 7) },

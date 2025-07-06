@@ -4,13 +4,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Brain } from 'lucide-react';
 
-interface WeeklyReportProps {
-    habits?: any[]; // Marked as optional as they are unused
-    recentLogs?: any[]; // Marked as optional as they are unused
-    isLoading?: boolean; // Marked as optional as it is unused
-}
-
-export default function WeeklyReport({ habits, recentLogs, isLoading }: WeeklyReportProps) {
+export default function WeeklyReport() {
   return (
     <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg dark:bg-slate-800/50 dark:border-slate-700">
       <CardHeader>

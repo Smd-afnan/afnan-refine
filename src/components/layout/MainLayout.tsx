@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useNotifier } from "@/components/notifications/NotificationProvider";
 import type { User, UserSettings } from "@/types";
-import { getMockUser, getMockUserSettings, updateMockUserSettings, checkDuaSettings } from '@/lib/mockData';
+import { getMockUser, updateMockUserSettings, checkDuaSettings } from '@/lib/mockData';
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { createPageUrl } from "@/lib/utils";
 import { scheduleDailyNotifications } from "@/lib/notifications";
@@ -36,6 +36,7 @@ import OpeningDuaScreen from "@/components/dua/OpeningDuaScreen";
 import { format } from "date-fns";
 import { registerServiceWorker, requestNotificationPermission, onMessageListener } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
+import { type MessagePayload } from "firebase/messaging";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -61,7 +62,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       try {
         const userData = await getMockUser();
         setUser(userData);
-        const settings = await checkDuaSettings(userData.email);
+        const settings = await checkDuaSettings();
         setUserSettings(settings);
         
         const today = format(new Date(), 'yyyy-MM-dd');
@@ -98,12 +99,11 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     registerServiceWorker();
 
-    // Listen for foreground messages
     onMessageListener()
-      .then((payload: any) => {
+      .then((payload: MessagePayload) => {
         toast({
-          title: payload.notification.title,
-          description: payload.notification.body,
+          title: payload.notification?.title,
+          description: payload.notification?.body,
         });
         console.log('Received foreground message: ', payload);
       })
@@ -116,11 +116,11 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
     setDuaCheckComplete(true);
     if (user) {
       const today = format(new Date(), 'yyyy-MM-dd');
-      await updateMockUserSettings(user.email, { last_dua_shown_date: today });
+      await updateMockUserSettings({ last_dua_shown_date: today });
     }
   };
 
-  const updateUserSetting = async (key: keyof UserSettings, value: any) => {
+  const updateUserSetting = async <K extends keyof UserSettings>(key: K, value: UserSettings[K]) => {
     if (!userSettings) return;
     
     const oldSettings = { ...userSettings };
@@ -128,7 +128,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
     setUserSettings(newSettingsData);
 
     try {
-      await updateMockUserSettings("believer@soulrefine.app", { [key]: value });
+      await updateMockUserSettings({ [key]: value });
     } catch (error) {
       console.error("Error updating user setting:", error);
       setUserSettings(oldSettings); 
