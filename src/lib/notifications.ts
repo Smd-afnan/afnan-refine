@@ -1,3 +1,14 @@
+/**
+ * @fileoverview This script handles the scheduling of local notifications THAT ONLY RUN
+ * WHEN THE APP IS OPEN IN A BROWSER TAB. It uses the browser's internal timers (setTimeout)
+ * to trigger reminders for prayers and habits during an active session.
+ *
+ * IMPORTANT: This is NOT for background push notifications that work when the app is closed.
+ * That functionality is handled by the Firebase Service Worker (`public/sw.js`) which
+ * receives messages from a backend server (e.g., Firebase Cloud Functions). This file
+ * is for enhancing the user experience while they are actively using the app.
+ */
+
 import type { NotificationContextType } from '@/components/notifications/NotificationProvider';
 import type { DailyPrayerLog, Habit, HabitLog, IslamicWisdom } from '@/types';
 import { getHabits, getHabitLogs, getDailyPrayerLogs, islamicWisdoms } from '@/lib/mockData';
