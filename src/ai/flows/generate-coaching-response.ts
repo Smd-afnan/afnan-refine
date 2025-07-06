@@ -7,7 +7,6 @@
  */
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import {Message, part} from 'genkit/model';
 
 export const ChatMessageSchema = z.object({
   role: z.enum(['user', 'model']),
@@ -69,7 +68,7 @@ const coachingFlow = ai.defineFlow(
 
     // The history is all messages except the last one
     const history = messages.slice(0, -1).map(
-      (msg) => new Message(msg.role, [part(msg.content)])
+      (msg) => ({ role: msg.role, parts: [{text: msg.content}] })
     );
 
     // The prompt is the last message from the user
