@@ -1,8 +1,6 @@
 
 import { initializeApp, getApp, getApps } from "firebase/app";
 import { getMessaging, getToken, onMessage, type MessagePayload } from "firebase/messaging";
-import { saveFcmToken } from "@/ai/flows/save-fcm-token";
-import { getMockUser } from "./mockData";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -51,15 +49,9 @@ export const requestNotificationPermission = async () => {
 
       if (fcmToken) {
         console.log('FCM Token:', fcmToken);
-        // Send the token to your backend to be saved
-        try {
-            const user = await getMockUser();
-            await saveFcmToken({ userId: user.id, token: fcmToken });
-            console.log("FCM token successfully sent to the backend.");
-        } catch (error) {
-            console.error("Failed to send FCM token to backend:", error);
-        }
-
+        // The token is now available on the client.
+        // The now-removed server-side function would have saved this.
+        // For local notifications, we don't need to send it anywhere.
         return fcmToken;
       } else {
         console.log('No registration token available. Request permission to generate one.');
