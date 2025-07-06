@@ -53,6 +53,7 @@ export default function ProfilePage() {
   };
 
   const handleSaveProfile = async () => {
+    if (!user) return;
     try {
       const updatedUser = await updateMockUser(editData);
       setUser(updatedUser);
@@ -76,7 +77,7 @@ export default function ProfilePage() {
     
     const uniqueLogDays = new Set(relevantLogs.map(log => log.completion_date)).size;
 
-    const completionRate = uniqueLogDays > 0 ? Math.round((completedLogs / (activeHabits * uniqueLogDays)) * 100) : 0;
+    const completionRate = uniqueLogDays > 0 && activeHabits > 0 ? Math.round((completedLogs / (activeHabits * uniqueLogDays)) * 100) : 0;
     
     let totalStreak = 0;
     habits.forEach(habit => {

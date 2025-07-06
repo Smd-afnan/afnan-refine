@@ -13,7 +13,7 @@ export const getMockUser = async (): Promise<User> => {
     return new Promise(resolve => setTimeout(() => resolve(mockUser), 100));
 }
 
-export const updateUser = async (updates: Partial<User>): Promise<User> => {
+export const updateMockUser = async (updates: Partial<User>): Promise<User> => {
     mockUser = { ...mockUser, ...updates };
     return new Promise(resolve => setTimeout(() => resolve(mockUser), 100));
 };
