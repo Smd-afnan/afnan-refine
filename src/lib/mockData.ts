@@ -1,0 +1,162 @@
+import type { Habit, HabitLog, AIInsight, UserSettings, User, OpeningDua, IslamicWisdom, DignityDare, PrayerTime } from '@/types';
+import { format } from 'date-fns';
+
+// Mock User
+export const mockUser: User = {
+  id: 'user-123',
+  email: 'believer@soulrefine.app',
+  name: 'Spiritual Seeker',
+};
+
+export const getMockUser = async (): Promise<User> => {
+    return new Promise(resolve => setTimeout(() => resolve(mockUser), 100));
+}
+
+// Mock UserSettings
+let mockUserSettings: UserSettings = {
+  id: 'settings-123',
+  created_by: 'believer@soulrefine.app',
+  show_opening_dua: true,
+  randomize_daily_dua: true,
+  dua_audio_enabled: false,
+  contextual_dua_mode: true,
+  app_language: 'english',
+  dark_mode: false,
+  notifications_enabled: false,
+  last_dua_shown_date: '',
+  preferred_language: 'arabic_english',
+};
+
+export const getMockUserSettings = async (email: string): Promise<UserSettings> => {
+    return new Promise(resolve => setTimeout(() => resolve(mockUserSettings), 100));
+}
+
+export const updateMockUserSettings = async (email: string, updates: Partial<UserSettings>): Promise<UserSettings> => {
+    mockUserSettings = { ...mockUserSettings, ...updates };
+    return new Promise(resolve => setTimeout(() => resolve(mockUserSettings), 100));
+}
+
+export const checkDuaSettings = async (email: string): Promise<UserSettings> => {
+    // In a real app, this would fetch or create settings
+    return getMockUserSettings(email);
+}
+
+// Mock Habits
+export const mockHabits: Habit[] = [
+  { id: 'habit-1', title: '5 Daily Prayers', is_active: true, streak_days: 12, best_streak: 25, category: 'worship', created_by: 'user-123' },
+  { id: 'habit-2', title: 'Read a page of Quran', is_active: true, streak_days: 5, best_streak: 10, category: 'learning', created_by: 'user-123' },
+  { id: 'habit-3', title: 'Morning walk', is_active: true, streak_days: 21, best_streak: 21, category: 'health', created_by: 'user-123' },
+  { id: 'habit-4', title: 'Call parents', is_active: true, streak_days: 2, best_streak: 30, category: 'community', created_by: 'user-123' },
+  { id: 'habit-5', title: 'Journal before sleep', is_active: false, streak_days: 0, best_streak: 15, category: 'self_care', created_by: 'user-123' },
+];
+
+export const getHabits = async (): Promise<Habit[]> => {
+    return new Promise(resolve => setTimeout(() => resolve(mockHabits), 300));
+}
+
+// Mock HabitLogs
+let mockHabitLogs: HabitLog[] = [
+  { id: 'log-1', habit_id: 'habit-1', completion_date: format(new Date(), 'yyyy-MM-dd'), status: 'completed' },
+  { id: 'log-2', habit_id: 'habit-3', completion_date: format(new Date(), 'yyyy-MM-dd'), status: 'pending' },
+];
+
+export const getHabitLogs = async (date: string): Promise<HabitLog[]> => {
+    const logsForDate = mockHabitLogs.filter(log => log.completion_date === date);
+    return new Promise(resolve => setTimeout(() => resolve(logsForDate), 200));
+}
+
+export const getAllHabitLogs = async (): Promise<HabitLog[]> => {
+    return new Promise(resolve => setTimeout(() => resolve(mockHabitLogs), 200));
+}
+
+export const updateHabitLog = async (logId: string, updates: Partial<HabitLog>): Promise<HabitLog> => {
+    let updatedLog: HabitLog | undefined;
+    mockHabitLogs = mockHabitLogs.map(log => {
+        if (log.id === logId) {
+            updatedLog = { ...log, ...updates };
+            return updatedLog;
+        }
+        return log;
+    });
+    return new Promise((resolve, reject) => {
+        if (updatedLog) setTimeout(() => resolve(updatedLog!), 150);
+        else reject(new Error("Log not found"));
+    });
+}
+
+export const createHabitLog = async (newLogData: Omit<HabitLog, 'id'>): Promise<HabitLog> => {
+    const newLog: HabitLog = { ...newLogData, id: `log-${Date.now()}` };
+    mockHabitLogs.push(newLog);
+    return new Promise(resolve => setTimeout(() => resolve(newLog), 150));
+}
+
+export const updateHabit = async(habitId: string, updates: Partial<Habit>): Promise<Habit> => {
+    let updatedHabit : Habit | undefined;
+    const index = mockHabits.findIndex(h => h.id === habitId);
+    if (index > -1) {
+        mockHabits[index] = { ...mockHabits[index], ...updates };
+        updatedHabit = mockHabits[index];
+    }
+     return new Promise((resolve, reject) => {
+        if (updatedHabit) setTimeout(() => resolve(updatedHabit!), 150);
+        else reject(new Error("Habit not found"));
+    });
+}
+
+
+// Mock AIInsights
+export const mockAIInsights: AIInsight[] = [
+  { id: 'insight-1', title: 'Reflection on Consistency', message: 'You have been consistent with your morning walk for 21 days! This discipline in your physical health can be a gateway to spiritual discipline. Consider adding a short dhikr during your walk.', insight_type: 'pattern_analysis', priority: 'medium', is_read: false, action_suggestion: 'Try saying "SubhanAllah" 10 times at the start of your walk tomorrow.', created_date: new Date().toISOString() },
+  { id: 'insight-2', title: 'Community Connection', message: 'It seems you missed calling your parents yesterday. Remember, maintaining family ties is a great virtue.', insight_type: 'warning', priority: 'high', is_read: false, action_suggestion: 'Schedule a call with your parents today.', created_date: new Date().toISOString() },
+];
+
+export const getAIInsights = async (): Promise<AIInsight[]> => {
+    return new Promise(resolve => setTimeout(() => resolve(mockAIInsights.filter(i => !i.is_read)), 400));
+}
+
+// Mock OpeningDuas
+export const mockOpeningDuas: OpeningDua[] = [
+    { id: 'dua-1', arabic: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا, وَرِزْقًا طَيِّبًا, وَعَمَلًا مُتَقَبَّلًا', transliteration: 'Allahumma inni as\'aluka \'ilman nafi\'an, wa rizqan tayyiban, wa \'amalan mutaqabbalan', translation: 'O Allah, I ask You for knowledge that is of benefit, a good provision, and deeds that will be accepted.', spiritual_focus: 'Seeking a Blessed Day', context: 'morning' },
+    { id: 'dua-2', arabic: 'بِاسْمِكَ رَبِّي وَضَعْتُ جَنْبِي، وَبِكَ أَرْفَعُهُ', transliteration: 'Bismika Rabbi wada\'tu janbi, wa bika arfa\'uhu', translation: 'In Your name my Lord, I lie down and in Your name I rise.', spiritual_focus: 'Trust in Allah for Rest', context: 'evening' },
+    { id: 'dua-3', arabic: 'رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ', transliteration: 'Rabbana atina fi dunya hasanah wa fil akhirati hasanah waqina \'adhaban naar', translation: 'Our Lord, give us in this world [that which is] good and in the Hereafter [that which is] good and protect us from the punishment of the Fire.', spiritual_focus: 'Seeking Goodness in Both Worlds', context: 'general' },
+];
+
+export const getOpeningDuas = async (): Promise<OpeningDua[]> => {
+    return new Promise(resolve => setTimeout(() => resolve(mockOpeningDuas), 100));
+}
+
+// Mock IslamicWisdom
+export const islamicWisdoms: IslamicWisdom[] = [
+  { id: 'wisdom-1', content: "The believer is not one who eats his fill while his neighbor goes hungry.", source: "Prophet Muhammad ﷺ" },
+  { id: 'wisdom-2', content: "Verily, with hardship, there is relief.", source: "Quran, 94:6" },
+  { id: 'wisdom-3', content: "The best of you are those who are best to their families.", source: "Prophet Muhammad ﷺ" },
+];
+
+export const getBarakahBoostWisdom = async (): Promise<IslamicWisdom> => {
+    const randomWisdom = islamicWisdoms[Math.floor(Math.random() * islamicWisdoms.length)];
+    return new Promise(resolve => setTimeout(() => resolve(randomWisdom), 200));
+}
+
+// Mock DignityDares
+export const mockDignityDares: DignityDare[] = [
+    { id: 'dare-1', level: 1, title: 'Smile at a Stranger', description: 'Share a genuine smile with a stranger you pass by today. It\'s a form of charity.', category: 'connection' },
+    { id: 'dare-2', level: 1, title: 'Secret Sadaqa', description: 'Give a small amount of charity secretly, where only Allah knows.', category: 'generosity' },
+];
+
+export const getDignityDare = async (level: number): Promise<DignityDare | null> => {
+    const dare = mockDignityDares.find(d => d.level === level) || null;
+    return new Promise(resolve => setTimeout(() => resolve(dare), 100));
+}
+
+// Mock Prayer Times
+export const mockPrayerTimes: PrayerTime[] = [
+    { name: 'Fajr', time: '5:30 AM', isCompleted: true },
+    { name: 'Dhuhr', time: '1:15 PM', isCompleted: true },
+    { name: 'Asr', time: '4:45 PM', isCompleted: false },
+    { name: 'Maghrib', time: '7:00 PM', isCompleted: false },
+    { name: 'Isha', time: '8:30 PM', isCompleted: false },
+];
+
+export const getPrayerTimes = async (): Promise<PrayerTime[]> => {
+    return new Promise(resolve => setTimeout(() => resolve(mockPrayerTimes), 250));
+}
