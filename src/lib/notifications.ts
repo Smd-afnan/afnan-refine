@@ -32,6 +32,11 @@ const getTodaysDateForTime = (time: string): Date => {
   return date;
 };
 
+/**
+ * Schedules notifications that only trigger while the app is open in a browser tab.
+ * This does NOT handle background notifications for when the app is closed.
+ * @param notifier The notification context from the NotificationProvider.
+ */
 export const scheduleDailyNotifications = async (notifier: NotificationContextType) => {
     if (!notifier || notifier.permission !== 'granted' || hasScheduledToday) {
         return;
