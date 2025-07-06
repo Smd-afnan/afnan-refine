@@ -8,13 +8,13 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const ChatMessageSchema = z.object({
+const ChatMessageSchema = z.object({
   role: z.enum(['user', 'model']),
   content: z.string(),
 });
 export type ChatMessage = z.infer<typeof ChatMessageSchema>;
 
-export const CoachingConversationSchema = z.array(ChatMessageSchema);
+const CoachingConversationSchema = z.array(ChatMessageSchema);
 export type CoachingConversation = z.infer<typeof CoachingConversationSchema>;
 
 export async function generateCoachingResponse(messages: CoachingConversation): Promise<string> {
