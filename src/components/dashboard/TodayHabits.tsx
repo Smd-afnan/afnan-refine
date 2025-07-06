@@ -1,18 +1,18 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Circle, Target, Plus } from "lucide-react";
+import { Check, CheckCircle, Circle, Target, Plus } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { createPageUrl } from "@/lib/utils";
-import PrayersBox from "./PrayersBox";
-import type { Habit, HabitLog } from '@/types';
-import { updateHabitLog, createHabitLog, updateHabit, getHabits, getHabitLogs } from '@/lib/mockData';
+import type { Habit, HabitLog, DailyPrayerLog } from '@/types';
+import { updateHabitLog, createHabitLog, updateHabit, getHabits, getHabitLogs, getDailyPrayerLogs, createDailyPrayerLog, updateDailyPrayerLog } from '@/lib/mockData';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 const categoryIcons: Record<string, string> = {
   worship: "🤲", health: "💪", learning: "📚", self_care: "✨", community: "🤝", personal: "🎯"
@@ -27,6 +27,22 @@ const categoryColors: Record<string, string> = {
   personal: "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600"
 };
 
+const prayerNames = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] as const;
+type PrayerName = typeof prayerNames[number];
+
+// Define Mosque icon as it's not in lucide-react
+const Mosque = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    {...props}
+  >
+    <path d="M12 1.5a1 1 0 00-1 1V4H6.78a2 2 0 00-1.9 1.38L2.1 13.1a1 1 0 000 .8l2.78 7.72A2 2 0 006.78 23h10.44a2 2 0 001.9-1.38l2.78-7.72a1 1 0 000-.8l-2.78-7.72A2 2 0 0017.22 4H13V2.5a1 1 0 00-1-1zm-3 5h6a1 1 0 011 1v1a1 1 0 01-1 1H9a1 1 0 01-1-1V7.5a1 1 0 011-1z" />
+  </svg>
+);
+
+
 interface TodayHabitsProps {
     habits: Habit[];
     todayLogs: HabitLog[];
@@ -34,10 +50,62 @@ interface TodayHabitsProps {
     isLoading: boolean;
 }
 
-export default function TodayHabits({ habits = [], todayLogs = [], onRefresh, isLoading }: TodayHabitsProps) {
+export default function TodayHabits({ habits = [], todayLogs = [], onRefresh, isLoading: isHabitsLoading }: TodayHabitsProps) {
   const [updatingHabits, setUpdatingHabits] = useState(new Set());
+  const [prayerLog, setPrayerLog] = useState<DailyPrayerLog | null>(null);
+  const [isPrayerLoading, setIsPrayerLoading] = useState(true);
   const today = format(new Date(), 'yyyy-MM-dd');
   const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchPrayers = async () => {
+      setIsPrayerLoading(true);
+      try {
+        let logs = await getDailyPrayerLogs(today);
+        if (logs.length > 0) {
+          setPrayerLog(logs[0]);
+        } else {
+          const newLog = await createDailyPrayerLog({
+            completion_date: today, fajr_completed: false, dhuhr_completed: false, asr_completed: false, maghrib_completed: false, isha_completed: false,
+          });
+          setPrayerLog(newLog);
+        }
+      } catch (error) {
+        console.error("Error fetching or creating prayer log:", error);
+        toast({ title: "Error", description: "Could not load prayer data.", variant: "destructive" });
+      }
+      setIsPrayerLoading(false);
+    };
+    fetchPrayers();
+  }, [today, toast]);
+
+  const handleTogglePrayer = async (prayerName: PrayerName) => {
+    if (!prayerLog) return;
+    
+    const dbKey = `${prayerName.toLowerCase()}_completed` as keyof DailyPrayerLog;
+    const currentStatus = prayerLog[dbKey];
+    
+    const updatedLog = await updateDailyPrayerLog(prayerLog.id, { [dbKey]: !currentStatus });
+    setPrayerLog(updatedLog);
+
+    const prayerHabit = habits.find(h => h.title === '5 Daily Prayers');
+    if (prayerHabit) {
+        const prayerStates = prayerNames.map(p => updatedLog[`${p.toLowerCase()}_completed` as keyof DailyPrayerLog]);
+        const allComplete = prayerStates.every(Boolean);
+        const prayerLogForHabit = todayLogs.find(l => l.habit_id === prayerHabit.id);
+
+        if (allComplete && prayerLogForHabit?.status !== 'completed') {
+             markHabitComplete(prayerHabit.id);
+        }
+    }
+
+    toast({
+        title: "Prayer status updated!",
+        description: `You've marked ${prayerName} as ${!currentStatus ? 'completed' : 'pending'}.`
+    });
+    onRefresh();
+  };
+
 
   const markHabitComplete = async (habitId: string) => {
     if (updatingHabits.has(habitId)) return;
@@ -90,6 +158,8 @@ export default function TodayHabits({ habits = [], todayLogs = [], onRefresh, is
     return log?.status || 'pending';
   };
 
+  const isLoading = isHabitsLoading || isPrayerLoading;
+
   if (isLoading) {
     return (
       <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-md dark:bg-slate-800/50 dark:border-slate-700">
@@ -136,8 +206,6 @@ export default function TodayHabits({ habits = [], todayLogs = [], onRefresh, is
       </CardHeader>
       <CardContent>
         <div className="space-y-3 max-h-96 overflow-y-auto">
-          <PrayersBox onRefresh={onRefresh} />
-
           {activeHabits.length === 0 ? (
             <div className="text-center py-8">
               <Target className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
@@ -151,6 +219,44 @@ export default function TodayHabits({ habits = [], todayLogs = [], onRefresh, is
           ) : (
             <>
               {activeHabits.map((habit) => {
+                if (habit.title === '5 Daily Prayers') {
+                  const completedPrayers = prayerNames.filter(p => prayerLog?.[`${p.toLowerCase()}_completed` as keyof DailyPrayerLog]).length;
+                  return (
+                    <div key={habit.id} className="p-4 rounded-xl border bg-purple-50/30 border-purple-200 dark:bg-purple-900/20 dark:border-purple-800">
+                       <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                              <Mosque className="w-5 h-5 text-purple-700 dark:text-purple-300" />
+                              <h4 className="font-semibold text-purple-800 dark:text-purple-200">{habit.title}</h4>
+                          </div>
+                          <Badge variant="outline" className="border-purple-200 bg-purple-100 text-purple-700 dark:bg-purple-800/50 dark:text-purple-200 dark:border-purple-700/50">{completedPrayers}/5</Badge>
+                       </div>
+                       <div className="flex justify-around items-center pt-2">
+                         {prayerNames.map(prayer => {
+                            const isCompleted = prayerLog ? !!prayerLog[`${prayer.toLowerCase()}_completed` as keyof DailyPrayerLog] : false;
+                            return (
+                                <div key={prayer} className="text-center flex flex-col items-center">
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => handleTogglePrayer(prayer)}
+                                      className={cn(
+                                        "w-12 h-12 rounded-full transition-all duration-200",
+                                        isCompleted
+                                          ? "bg-purple-600 text-white hover:bg-purple-700 border-0"
+                                          : "bg-gray-200 hover:bg-gray-300 dark:bg-slate-800 dark:hover:bg-slate-700 border border-gray-300 dark:border-slate-600"
+                                      )}
+                                    >
+                                      {isCompleted ? <Check className="w-6 h-6" /> : null}
+                                    </Button>
+                                    <span className="text-xs font-medium text-purple-800 mt-2 block dark:text-purple-300">{prayer}</span>
+                                </div>
+                            )
+                         })}
+                       </div>
+                    </div>
+                  );
+                }
+
                 const status = getHabitStatus(habit.id);
                 const isCompleted = status === 'completed';
                 const isUpdating = updatingHabits.has(habit.id);
