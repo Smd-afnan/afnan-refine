@@ -24,19 +24,17 @@ export default function QuickActions() {
       </CardHeader>
       <CardContent className="space-y-3">
         {actions.map((action, index) => (
-          <Link key={index} href={action.url} passHref>
-            <Button asChild variant="ghost" className="w-full justify-start p-4 h-auto hover:bg-gray-50 transition-all duration-200 dark:hover:bg-slate-700/50">
-              <a>
-                <div className={`w-10 h-10 rounded-xl ${action.color} flex items-center justify-center mr-3 flex-shrink-0`}>
-                  <action.icon className="w-5 h-5 text-white" />
-                </div>
-                <div className="text-left">
-                  <p className="font-semibold text-gray-900 dark:text-gray-100">{action.title}</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{action.description}</p>
-                </div>
-              </a>
-            </Button>
-          </Link>
+          <Button key={index} asChild variant="ghost" className="w-full justify-start p-4 h-auto hover:bg-gray-50 transition-all duration-200 dark:hover:bg-slate-700/50">
+            <Link href={action.url}>
+              <div className={`w-10 h-10 rounded-xl ${action.color} flex items-center justify-center mr-3 flex-shrink-0`}>
+                <action.icon className="w-5 h-5 text-white" />
+              </div>
+              <div className="text-left">
+                <p className="font-semibold text-gray-900 dark:text-gray-100">{action.title}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{action.description}</p>
+              </div>
+            </Link>
+          </Button>
         ))}
       </CardContent>
     </Card>
