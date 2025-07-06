@@ -91,6 +91,18 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
     }
   }, [notifier, userSettings?.notifications_enabled, notifier?.permission]);
 
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').then(registration => {
+          console.log('SW registered: ', registration);
+        }).catch(registrationError => {
+          console.log('SW registration failed: ', registrationError);
+        });
+      });
+    }
+  }, []);
+
   const handleDuaComplete = async () => {
     setShowDuaScreen(false);
     setDuaCheckComplete(true);
