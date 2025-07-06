@@ -1,5 +1,6 @@
-// Use 'edge' runtime for faster, cheaper execution on Vercel
-export const runtime = 'edge';
+
+// This route MUST run in the Node.js runtime because it uses the Firebase Admin SDK.
+export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic'; // ensure the function is not cached
 
 import {NextResponse} from 'next/server';
