@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, CheckCircle, Circle, Target, Plus } from "lucide-react";
+import { Check, CheckCircle, Circle, Target, Plus, AlarmClock } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { createPageUrl } from "@/lib/utils";
@@ -271,6 +271,12 @@ export default function TodayHabits({ habits = [], todayLogs = [], onRefresh, is
                           <Badge variant="outline" className={`${categoryColors[habit.category]} text-xs`}>{habit.category.replace('_', ' ')}</Badge>
                           {isCompleted && <Badge variant="outline" className="bg-emerald-100 text-emerald-800 border-emerald-300 text-xs dark:bg-emerald-900/50 dark:text-emerald-300 dark:border-emerald-700">✓ Completed</Badge>}
                           {habit.streak_days > 0 && <Badge variant="outline" className="bg-orange-100 text-orange-800 border-orange-300 text-xs dark:bg-orange-900/50 dark:text-orange-300 dark:border-orange-700">🔥 {habit.streak_days} days</Badge>}
+                          {habit.reminder_time && (
+                            <Badge variant="outline" className="text-xs font-normal text-gray-600 border-gray-300 dark:text-gray-400 dark:border-gray-600">
+                                <AlarmClock className="w-3 h-3 mr-1.5" />
+                                {habit.reminder_time}
+                            </Badge>
+                          )}
                         </div>
                       </div>
                     </div>

@@ -1,5 +1,6 @@
 import type { Habit, HabitLog, AIInsight, UserSettings, User, OpeningDua, IslamicWisdom, DignityDare, PrayerTime, DailyReflection, DailyPrayerLog } from '@/types';
 import { format, subDays } from 'date-fns';
+import { saveHabit } from '@/ai/flows/save-habit';
 
 // --- LocalStorage Helper Functions ---
 const isBrowser = typeof window !== 'undefined';
@@ -37,10 +38,10 @@ const saveToLocalStorage = <T>(key: string, value: T): void => {
 // --- Initial Default Data ---
 const defaultHabits: Habit[] = [
   { id: 'habit-1', title: '5 Daily Prayers', is_active: true, streak_days: 0, best_streak: 0, category: 'worship', created_by: 'user-123' },
-  { id: 'habit-2', title: 'Read a page of Quran', is_active: true, streak_days: 0, best_streak: 0, category: 'learning', created_by: 'user-123' },
-  { id: 'habit-3', title: 'Morning walk', is_active: true, streak_days: 0, best_streak: 0, category: 'health', created_by: 'user-123' },
+  { id: 'habit-2', title: 'Read a page of Quran', is_active: true, streak_days: 0, best_streak: 0, category: 'learning', created_by: 'user-123', reminder_time: '06:30' },
+  { id: 'habit-3', title: 'Morning walk', is_active: true, streak_days: 0, best_streak: 0, category: 'health', created_by: 'user-123', reminder_time: '07:00' },
   { id: 'habit-4', title: 'Call parents', is_active: true, streak_days: 0, best_streak: 0, category: 'community', created_by: 'user-123' },
-  { id: 'habit-5', title: 'Journal before sleep', is_active: false, streak_days: 0, best_streak: 0, category: 'self_care', created_by: 'user-123' },
+  { id: 'habit-5', title: 'Journal before sleep', is_active: false, streak_days: 0, best_streak: 0, category: 'self_care', created_by: 'user-123', reminder_time: '22:00' },
 ];
 
 const defaultUserSettings: UserSettings = {
@@ -83,6 +84,22 @@ export const updateHabit = async(habitId: string, updates: Partial<Habit>): Prom
         habits[index] = { ...habits[index], ...updates };
         updatedHabit = habits[index];
         saveToLocalStorage('habits', habits);
+        
+        // Sync with backend for notifications
+        try {
+            await saveHabit({
+                userId: 'user-123',
+                habit: {
+                    id: habitId,
+                    title: updatedHabit.title,
+                    is_active: updatedHabit.is_active,
+                    category: updatedHabit.category,
+                    reminder_time: updatedHabit.reminder_time,
+                }
+            });
+        } catch (e) {
+            console.warn("Could not sync habit to backend. Timed notifications may not work.", e);
+        }
     }
     if (updatedHabit) return Promise.resolve(updatedHabit);
     return Promise.reject(new Error("Habit not found"));
@@ -94,6 +111,23 @@ export const createHabit = async (habitData: Omit<Habit, 'id' | 'streak_days' | 
     };
     habits.unshift(newHabit);
     saveToLocalStorage('habits', habits);
+
+    // Sync with backend for notifications
+    try {
+        await saveHabit({
+            userId: 'user-123',
+            habit: {
+                id: newHabit.id,
+                title: newHabit.title,
+                is_active: newHabit.is_active,
+                category: newHabit.category,
+                reminder_time: newHabit.reminder_time,
+            }
+        });
+    } catch (e) {
+        console.warn("Could not sync habit to backend. Timed notifications may not work.", e);
+    }
+    
     return Promise.resolve(newHabit);
 }
 export const deleteHabit = async (habitId: string): Promise<{ id: string }> => {
@@ -101,6 +135,14 @@ export const deleteHabit = async (habitId: string): Promise<{ id: string }> => {
     let logs = loadFromLocalStorage<HabitLog[]>('habitLogs', []);
     saveToLocalStorage('habits', habits.filter(h => h.id !== habitId));
     saveToLocalStorage('habitLogs', logs.filter(l => l.habit_id !== habitId));
+    
+    // Also remove from backend
+     try {
+        await saveHabit({ userId: 'user-123', habit: { id: habitId, is_active: false, title: 'deleted', category: 'personal' }});
+    } catch (e) {
+        console.warn("Could not sync habit deletion to backend.", e);
+    }
+
     return Promise.resolve({ id: habitId });
 }
 

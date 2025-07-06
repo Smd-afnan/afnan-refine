@@ -16,6 +16,7 @@ const habitSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters long"),
   category: z.enum(['worship', 'health', 'learning', 'self_care', 'community', 'personal']),
   is_active: z.boolean(),
+  reminder_time: z.string().optional(),
 });
 
 type HabitFormData = z.infer<typeof habitSchema>;
@@ -33,12 +34,20 @@ export default function HabitForm({ habit, onSubmit, onCancel }: HabitFormProps)
       title: '',
       category: 'personal',
       is_active: true,
+      reminder_time: '',
     }
   });
 
   useEffect(() => {
     if (habit) {
       reset(habit);
+    } else {
+      reset({
+        title: '',
+        category: 'personal',
+        is_active: true,
+        reminder_time: '',
+      });
     }
   }, [habit, reset]);
 
@@ -75,14 +84,20 @@ export default function HabitForm({ habit, onSubmit, onCancel }: HabitFormProps)
               </div>
             )}
           />
+          
+          <div>
+            <Label htmlFor="reminder_time">Reminder Time (optional)</Label>
+            <Input id="reminder_time" type="time" {...register('reminder_time')} />
+            {errors.reminder_time && <p className="text-red-500 text-sm mt-1">{errors.reminder_time.message}</p>}
+          </div>
 
           <Controller
             name="is_active"
             control={control}
             render={({ field }) => (
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 pt-2">
                 <Switch id="is_active" checked={field.value} onCheckedChange={field.onChange} />
-                <Label htmlFor="is_active">Active</Label>
+                <Label htmlFor="is_active">Track this habit</Label>
               </div>
             )}
           />

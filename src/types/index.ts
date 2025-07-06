@@ -6,6 +6,7 @@ export interface Habit {
   best_streak: number;
   category: 'worship' | 'health' | 'learning' | 'self_care' | 'community' | 'personal';
   created_by: string;
+  reminder_time?: string; // e.g., "14:30"
 }
 
 export interface HabitLog {

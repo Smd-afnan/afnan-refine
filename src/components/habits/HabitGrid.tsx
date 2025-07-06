@@ -4,7 +4,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, Flame, Star, Target } from "lucide-react";
+import { Pencil, Trash2, Flame, Star, Target, AlarmClock } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Habit } from '@/types';
 
@@ -85,6 +85,12 @@ export default function HabitGrid({ habits, onEdit, onDelete, isLoading }: Habit
                 <p className="text-xs text-gray-500 dark:text-gray-400">Best</p>
               </div>
             </div>
+             {habit.reminder_time && (
+                <div className="flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-100 dark:border-slate-700">
+                    <AlarmClock className="w-4 h-4" />
+                    <span>Reminder at {habit.reminder_time}</span>
+                </div>
+            )}
           </CardContent>
           <CardFooter className="flex justify-end gap-2">
             <Button variant="ghost" size="icon" onClick={() => onEdit(habit)}>
