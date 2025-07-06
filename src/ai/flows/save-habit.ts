@@ -26,7 +26,7 @@ const SaveHabitInputSchema = z.object({
       id: z.string(),
       title: z.string(),
       is_active: z.boolean(),
-      category: z.string(),
+      category: z.enum(['worship', 'health', 'learning', 'self_care', 'community', 'personal']),
       reminder_time: z.string().optional(),
   })
 });

@@ -1,6 +1,5 @@
 import type { Habit, HabitLog, AIInsight, UserSettings, User, OpeningDua, IslamicWisdom, DignityDare, PrayerTime, DailyReflection, DailyPrayerLog } from '@/types';
 import { format, subDays } from 'date-fns';
-import { saveHabit } from '@/ai/flows/save-habit';
 
 // --- LocalStorage Helper Functions ---
 const isBrowser = typeof window !== 'undefined';
@@ -84,22 +83,6 @@ export const updateHabit = async(habitId: string, updates: Partial<Habit>): Prom
         habits[index] = { ...habits[index], ...updates };
         updatedHabit = habits[index];
         saveToLocalStorage('habits', habits);
-        
-        // Sync with backend for notifications
-        try {
-            await saveHabit({
-                userId: 'user-123',
-                habit: {
-                    id: habitId,
-                    title: updatedHabit.title,
-                    is_active: updatedHabit.is_active,
-                    category: updatedHabit.category,
-                    reminder_time: updatedHabit.reminder_time,
-                }
-            });
-        } catch (e) {
-            console.warn("Could not sync habit to backend. Timed notifications may not work.", e);
-        }
     }
     if (updatedHabit) return Promise.resolve(updatedHabit);
     return Promise.reject(new Error("Habit not found"));
@@ -111,23 +94,6 @@ export const createHabit = async (habitData: Omit<Habit, 'id' | 'streak_days' | 
     };
     habits.unshift(newHabit);
     saveToLocalStorage('habits', habits);
-
-    // Sync with backend for notifications
-    try {
-        await saveHabit({
-            userId: 'user-123',
-            habit: {
-                id: newHabit.id,
-                title: newHabit.title,
-                is_active: newHabit.is_active,
-                category: newHabit.category,
-                reminder_time: newHabit.reminder_time,
-            }
-        });
-    } catch (e) {
-        console.warn("Could not sync habit to backend. Timed notifications may not work.", e);
-    }
-    
     return Promise.resolve(newHabit);
 }
 export const deleteHabit = async (habitId: string): Promise<{ id: string }> => {
@@ -135,14 +101,6 @@ export const deleteHabit = async (habitId: string): Promise<{ id: string }> => {
     let logs = loadFromLocalStorage<HabitLog[]>('habitLogs', []);
     saveToLocalStorage('habits', habits.filter(h => h.id !== habitId));
     saveToLocalStorage('habitLogs', logs.filter(l => l.habit_id !== habitId));
-    
-    // Also remove from backend
-     try {
-        await saveHabit({ userId: 'user-123', habit: { id: habitId, is_active: false, title: 'deleted', category: 'personal' }});
-    } catch (e) {
-        console.warn("Could not sync habit deletion to backend.", e);
-    }
-
     return Promise.resolve({ id: habitId });
 }
 

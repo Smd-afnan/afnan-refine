@@ -12,6 +12,7 @@ import HabitGrid from "@/components/habits/HabitGrid";
 import HabitForm from "@/components/habits/HabitForm";
 import HabitFilters from "@/components/habits/HabitFilters";
 import HabitStats from "@/components/habits/HabitStats";
+import { saveHabit } from "@/ai/flows/save-habit";
 
 export default function HabitsPage() {
   const [habits, setHabits] = useState<Habit[]>([]);
@@ -61,13 +62,32 @@ export default function HabitsPage() {
 
   const handleSubmit = async (habitData: Partial<Habit>) => {
     try {
+      let resultHabit: Habit;
       if (editingHabit) {
-        await updateHabit(editingHabit.id, habitData);
+        resultHabit = await updateHabit(editingHabit.id, habitData);
         toast({ title: "Success", description: "Habit updated." });
       } else {
-        await createHabit(habitData as Omit<Habit, 'id' | 'streak_days' | 'best_streak' | 'created_by'>);
+        resultHabit = await createHabit(habitData as Omit<Habit, 'id' | 'streak_days' | 'best_streak' | 'created_by'>);
         toast({ title: "Success", description: "Habit created." });
       }
+      
+      // Sync with backend
+      try {
+        await saveHabit({
+            userId: 'user-123',
+            habit: {
+                id: resultHabit.id,
+                title: resultHabit.title,
+                is_active: resultHabit.is_active,
+                category: resultHabit.category,
+                reminder_time: resultHabit.reminder_time,
+            }
+        });
+      } catch (e) {
+        console.warn("Could not sync habit to backend. Timed notifications may not work.", e);
+        toast({ title: "Sync Error", description: "Could not save habit to server.", variant: "destructive" });
+      }
+
       setShowForm(false);
       setEditingHabit(null);
       loadHabits();
@@ -83,10 +103,30 @@ export default function HabitsPage() {
   };
 
   const handleDelete = async (habitId: string) => {
+    const habitToDelete = habits.find(h => h.id === habitId);
     if (window.confirm("Are you sure you want to delete this habit? All its logs will be removed too.")) {
       try {
         await deleteHabit(habitId);
         toast({ title: "Success", description: "Habit deleted." });
+
+        if (habitToDelete) {
+            try {
+                await saveHabit({
+                    userId: 'user-123',
+                    habit: {
+                        id: habitToDelete.id,
+                        title: habitToDelete.title,
+                        is_active: false,
+                        category: habitToDelete.category,
+                        reminder_time: habitToDelete.reminder_time,
+                    }
+                });
+            } catch (e) {
+                console.warn("Could not sync habit deletion to backend.", e);
+                toast({ title: "Sync Error", description: "Could not delete habit on server.", variant: "destructive" });
+            }
+        }
+        
         loadHabits();
       } catch (error) {
         console.error("Error deleting habit:", error);
