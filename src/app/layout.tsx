@@ -3,6 +3,27 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { NotificationProvider } from '@/components/notifications/NotificationProvider';
 import MainLayout from '@/components/layout/MainLayout';
+import { Inter, Space_Grotesk, Amiri } from 'next/font/google';
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  weight: '700',
+  display: 'swap',
+  variable: '--font-space-grotesk',
+});
+
+const amiri = Amiri({
+  subsets: ['arabic'],
+  weight: ['400', '700'],
+  display: 'swap',
+  variable: '--font-amiri',
+});
 
 export const metadata: Metadata = {
   title: 'SoulRefine',
@@ -15,20 +36,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${spaceGrotesk.variable} ${amiri.variable}`}>
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@700&display=swap"
- rel="stylesheet"
-        />
-        {/*
-          Custom fonts should ideally be added in pages/_document.js to load for all pages.
-          See: https://nextjs.org/docs/messages/no-page-custom-font
-        */}
-         <link href="https://fonts.googleapis.com/css2?family=Amiri&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
         <NotificationProvider>

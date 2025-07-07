@@ -1,14 +1,15 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Volume2, VolumeX, Settings } from "lucide-react";
-import type { OpeningDua, UserSettings, User } from '@/types';
+import type { OpeningDua, UserSettings } from '@/types';
 import { getOpeningDuas, getMockUserSettings, updateMockUserSettings } from '@/lib/mockData';
 import { useToast } from '@/hooks/use-toast';
 
-export default function OpeningDuaScreen({ onComplete, user }: { onComplete: () => void; user: User }) {
+export default function OpeningDuaScreen({ onComplete }: { onComplete: () => void; }) {
   const [currentDua, setCurrentDua] = useState<OpeningDua | null>(null);
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);

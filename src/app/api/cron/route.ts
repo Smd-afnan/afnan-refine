@@ -18,8 +18,12 @@ if (!admin.apps.length) {
         privateKey: (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
       }),
     });
-  } catch (error: any) {
-    console.error('Firebase admin initialization error', error.stack);
+  } catch (error) {
+    if (error instanceof Error) {
+        console.error('Firebase admin initialization error', error.stack);
+    } else {
+        console.error('An unknown error occurred during Firebase admin initialization', error);
+    }
   }
 }
 
@@ -53,7 +57,7 @@ export async function GET(request: Request) {
       return NextResponse.json({message: 'No habits due for reminders.'});
     }
 
-    const remindersToSend: Promise<any>[] = [];
+    const remindersToSend: Promise<string>[] = [];
 
     // 4. For each due habit, find the user's notification token and queue a message.
     for (const habitDoc of habitsDueSnapshot.docs) {

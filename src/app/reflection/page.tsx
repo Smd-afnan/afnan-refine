@@ -19,7 +19,7 @@ export default function ReflectionPage() {
   const [selectedReflections, setSelectedReflections] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("today");
-  const [aiInsights, setAiInsights] = useState<ReflectionInsightReport | null>(null);
+  const [aiInsights, setAiInsights] = useState<(ReflectionInsightReport & { error?: string }) | null>(null);
   const [isGeneratingInsights, setIsGeneratingInsights] = useState(false);
   const { toast } = useToast();
 
@@ -118,7 +118,7 @@ export default function ReflectionPage() {
       setActiveTab("insights");
     } catch (error) {
       console.error("Error generating AI insights:", error);
-      setAiInsights({ error: "Sorry, I couldn't generate insights at this moment. Please try again later." } as any);
+      setAiInsights({ soul_reflection: '', inner_meaning: '', todays_mujahadah: '', barakah_boost: '', error: "Sorry, I couldn't generate insights at this moment. Please try again later." });
     }
     setIsGeneratingInsights(false);
   };
