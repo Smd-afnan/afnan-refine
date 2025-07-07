@@ -66,18 +66,12 @@ const coachingFlow = ai.defineFlow(
       return "Bismillah. How may I guide you today?";
     }
 
-    // The history is all messages except the last one
-    const history = messages.slice(0, -1).map(
-      (msg) => ({ role: msg.role, parts: [{text: msg.content}] })
-    );
-
-    // The prompt is the last message from the user
-    const lastMessage = messages[messages.length - 1];
-    
-    const {text} = await ai.generate({
+    const { text } = await ai.generate({
       system: systemPrompt,
-      prompt: lastMessage.content,
-      history,
+      prompt: messages.map((msg) => ({
+        role: msg.role,
+        parts: [{ text: msg.content }],
+      })),
     });
     
     return text;
