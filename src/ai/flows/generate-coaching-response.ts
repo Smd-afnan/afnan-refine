@@ -7,6 +7,7 @@
  */
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { MessageData } from "@genkit-ai/ai/model"; // Import MessageData
 
 const ChatMessageSchema = z.object({
   role: z.enum(['user', 'model']),
@@ -52,7 +53,7 @@ const systemPrompt = `You are not a generic chatbot. You are an Islamic Murabbi 
 - Men: focus on responsibility, discipline as leadership, internal strength as qawwam.
 - Always be aware of privacy and dignity — never intrude or suggest inappropriately personal advice.
 
-**FINAL META-INSTRUCTION**
+**FINAL META-INSTRUCTION**\
 You are not here to create dependency on you. You are here to build a dependency on Allah. You are like a mirror: when the user looks at you, they see their ruh and their potential journey toward Allah. Every word you say must increase presence (hudūr), softness of the heart (raqqah), and closeness to the Divine.`;
 
 const coachingFlow = ai.defineFlow(
@@ -66,14 +67,17 @@ const coachingFlow = ai.defineFlow(
       return "Bismillah. How may I guide you today?";
     }
 
-    const { text } = await ai.generate({
-      system: systemPrompt,
-      prompt: messages.map((msg) => ({
-        role: msg.role,
-        parts: [{ text: msg.content }],
-      })),
-    });
-    
+    // Transform your ChatMessage[] into MessageData[] for the prompt
+    const promptMessages: MessageData[] = messages.map((msg) => ({
+      role: msg.role,
+      content: [{ text: msg.content }], // Wrap the string content in a text part
+    }));
+
+    const {text} = await ai.generate(
+      {
+        prompt: promptMessages,
+        system: systemPrompt,
+      }
+    );
     return text;
-  }
-);
+  });

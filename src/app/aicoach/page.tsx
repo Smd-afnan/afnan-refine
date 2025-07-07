@@ -160,8 +160,8 @@ export default function AICoachPage() {
         <div className="min-h-[400px]">
           {activeTab === "insights" && <InsightsList insights={insights} isLoading={isLoading} />}
           {activeTab === "patterns" && <PatternAnalysis habits={habits} recentLogs={recentLogs} isLoading={isLoading} />}
-          {activeTab === "chat" && <CoachingChat />}
-          {activeTab === "report" && <WeeklyReport habits={habits} recentLogs={recentLogs} isLoading={isLoading} />}
+ {activeTab === "chat" && <CoachingChat />}
+ {activeTab === "report" && <WeeklyReport isLoading={isLoading} />}
         </div>
       </div>
     </div>

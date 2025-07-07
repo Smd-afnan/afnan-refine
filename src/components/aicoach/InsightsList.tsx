@@ -8,7 +8,7 @@ import { Lightbulb, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface InsightsListProps {
-  insights: { id: string; date: string; ago: string; report: { soul_reflection: string; inner_meaning: string; mujadah: string; barakah_boost: string } }[];
+  insights: { id: string; date: string; ago: string; report: { soul_reflection: string; inner_meaning: string; mujahadah: string; barakah_boost: string } }[];
   isLoading: boolean;
 }
 

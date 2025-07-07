@@ -2,7 +2,6 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import type { User, Habit, HabitLog, DailyReflection } from "@/types";
 import { getMockUser, updateMockUser, getHabits, getAllHabitLogs, getDailyReflections } from "@/lib/mockData";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +15,7 @@ import ProfileStats from "@/components/profile/ProfileStats";
 import AchievementsBadges from "@/components/profile/AchievementsBadges";
 import GrowthChart from "@/components/profile/GrowthChart";
 import PersonalGoals from "@/components/profile/PersonalGoals";
-
+import type { User, Habit, HabitLog, DailyReflection } from "@/types";
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
   const [habits, setHabits] = useState<Habit[]>([]);
@@ -198,13 +197,11 @@ export default function ProfilePage() {
 
           <div className="lg:col-span-2 space-y-6">
             <GrowthChart 
-              habits={habits}
               recentLogs={recentLogs}
             />
             
-            <PersonalGoals 
-              user={user}
-              habits={habits}
+            <PersonalGoals
+ habits={habits}
             />
           </div>
         </div>
