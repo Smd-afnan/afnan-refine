@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -7,6 +8,7 @@ import { Calendar, TrendingUp, Flame } from "lucide-react";
 import { getAllHabitLogs, getHabits } from "@/lib/mockData";
 import { format, subDays, isToday, isYesterday } from "date-fns";
 import type { Habit } from '@/types';
+import { useAuth } from '@/context/AuthContext';
 
 interface DayData {
     date: string;
@@ -20,21 +22,24 @@ interface DayData {
 }
 
 export default function HabitHeatmap({ habits: initialHabits = [] }: { habits: Habit[] }) {
+  const { user } = useAuth();
   const [weekData, setWeekData] = useState<DayData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [habits, setHabits] = useState<Habit[]>(initialHabits);
 
   useEffect(() => {
+    if (!user) return;
     const fetchHabits = async () => {
       if (initialHabits.length === 0) {
-        const fetchedHabits = await getHabits();
+        const fetchedHabits = await getHabits(user.uid);
         setHabits(fetchedHabits);
       }
     };
     fetchHabits();
-  }, [initialHabits]);
+  }, [initialHabits, user]);
 
   const loadWeekData = useCallback(async () => {
+    if (!user) return;
     setIsLoading(true);
     try {
       const days: DayData[] = [];
@@ -48,7 +53,7 @@ export default function HabitHeatmap({ habits: initialHabits = [] }: { habits: H
         return;
       }
       
-      const allLogs = await getAllHabitLogs();
+      const allLogs = await getAllHabitLogs(user.uid);
       for (let i = 6; i >= 0; i--) {
         const date = subDays(today, i);
         const dateStr = format(date, 'yyyy-MM-dd');
@@ -66,14 +71,14 @@ export default function HabitHeatmap({ habits: initialHabits = [] }: { habits: H
       console.error("Error loading week data:", error);
     }
     setIsLoading(false);
-  }, [habits]);
+  }, [habits, user]);
 
   useEffect(() => {
     if (habits.length > 0) {
       loadWeekData();
     } else {
-      setWeekData([]);
       setIsLoading(false);
+      setWeekData([]);
     }
   }, [habits, loadWeekData]);
 

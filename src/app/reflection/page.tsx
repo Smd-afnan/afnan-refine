@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
@@ -12,8 +13,10 @@ import ReflectionForm from "@/components/reflection/ReflectionForm";
 import ReflectionHistory from "@/components/reflection/ReflectionHistory";
 import MoodTracker from "@/components/reflection/MoodTracker";
 import AIReflectionInsights from "@/components/reflection/AIReflectionInsights";
+import { useAuth } from "@/context/AuthContext";
 
 export default function ReflectionPage() {
+  const { user } = useAuth();
   const [reflections, setReflections] = useState<DailyReflection[]>([]);
   const [selectedReflections, setSelectedReflections] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState(true);
@@ -27,37 +30,34 @@ export default function ReflectionPage() {
   const todayReflection = useMemo(() => {
     const found = reflections.find(r => r.reflection_date === today);
     if (found) return found;
-    // Prepare a new unsaved reflection object for today
-    return { id: '', reflection_date: today, created_by: 'user-123' };
-  }, [reflections, today]);
+    return { id: '', reflection_date: today, created_by: user?.uid || '' };
+  }, [reflections, today, user]);
 
   const loadReflectionData = useCallback(async () => {
+    if (!user) return;
     setIsLoading(true);
     try {
-      const reflectionsData = await getDailyReflections();
+      const reflectionsData = await getDailyReflections(user.uid);
       setReflections(reflectionsData);
     } catch (error) {
       console.error("Error loading reflection data:", error);
       toast({ title: "Error", description: "Could not load reflection data.", variant: "destructive" });
     }
     setIsLoading(false);
-  }, [toast]);
+  }, [user, toast]);
 
   useEffect(() => {
     loadReflectionData();
   }, [loadReflectionData]);
 
-
   const handleSaveReflection = async (reflectionData: Partial<DailyReflection>) => {
+    if (!user) return;
     try {
       if (todayReflection && todayReflection.id) {
         await updateDailyReflection(todayReflection.id, reflectionData);
         toast({ title: "Success", description: "Reflection updated." });
       } else {
-        await createDailyReflection({
-          ...reflectionData,
-          reflection_date: today
-        } as Omit<DailyReflection, 'id' | 'created_by'>);
+        await createDailyReflection(user.uid, { ...reflectionData, reflection_date: today } as Omit<DailyReflection, 'id' | 'created_by'>);
         toast({ title: "Success", description: "Reflection saved." });
       }
       await loadReflectionData();
@@ -81,37 +81,22 @@ export default function ReflectionPage() {
   };
 
   const handleToggleReflectionSelection = (reflectionId: string) => {
-    setSelectedReflections(prev => ({
-      ...prev,
-      [reflectionId]: !prev[reflectionId]
-    }));
+    setSelectedReflections(prev => ({ ...prev, [reflectionId]: !prev[reflectionId] }));
   };
 
   const generateAIInsightsForSelection = async () => {
     setIsGeneratingInsights(true);
     setAiInsights(null);
-    
     const selectedIds = Object.keys(selectedReflections).filter(id => selectedReflections[id]);
-    
     if (selectedIds.length === 0) {
       toast({ title: "No Selection", description: "Please select at least one reflection to generate insights.", variant: "destructive" });
       setIsGeneratingInsights(false);
       return;
     }
-
     try {
       const reflectionsToAnalyze = reflections
         .filter(r => selectedIds.includes(r.id))
-        .map(r => ({
-            date: r.reflection_date,
-            gratitude: r.gratitude_entry,
-            challenges: r.challenges_faced,
-            lessons: r.lessons_learned,
-            mood_morning: r.mood_morning,
-            mood_evening: r.mood_evening,
-            spiritual_connection: r.spiritual_connection,
-        }));
-
+        .map(r => ({ date: r.reflection_date, gratitude: r.gratitude_entry, challenges: r.challenges_faced, lessons: r.lessons_learned, mood_morning: r.mood_morning, mood_evening: r.mood_evening, spiritual_connection: r.spiritual_connection }));
       const response = await generateReflectionInsights({ reflections: reflectionsToAnalyze });
       setAiInsights(response);
       setActiveTab("insights");
@@ -134,66 +119,17 @@ export default function ReflectionPage() {
     <div className="p-4 lg:p-8">
       <div className="max-w-6xl mx-auto space-y-8">
         <div className="text-center lg:text-left">
-          <div className="flex items-center justify-center lg:justify-start gap-3 mb-4">
-            <Calendar className="w-8 h-8 text-blue-600" />
-            <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-800 to-blue-600 dark:from-blue-500 dark:to-blue-700 bg-clip-text text-transparent font-headline">
-              Daily Reflection
-            </h1>
-          </div>
-          <p className="text-lg text-blue-700 dark:text-blue-300 font-medium">
-            Connect with your inner self and track your spiritual journey.
-          </p>
+          <div className="flex items-center justify-center lg:justify-start gap-3 mb-4"><Calendar className="w-8 h-8 text-blue-600" /><h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-800 to-blue-600 dark:from-blue-500 dark:to-blue-700 bg-clip-text text-transparent font-headline">Daily Reflection</h1></div>
+          <p className="text-lg text-blue-700 dark:text-blue-300 font-medium">Connect with your inner self and track your spiritual journey.</p>
         </div>
-
         <div className="flex flex-wrap gap-2">
-          {tabs.map((tab) => (
-            <Button
-              key={tab.id}
-              variant={activeTab === tab.id ? "default" : "outline"}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 ${
-                activeTab === tab.id 
-                  ? "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600" 
-                  : "hover:bg-blue-50 dark:hover:bg-slate-700"
-              }`}
-            >
-              <tab.icon className="w-4 h-4" />
-              {tab.label}
-            </Button>
-          ))}
+          {tabs.map((tab) => (<Button key={tab.id} variant={activeTab === tab.id ? "default" : "outline"} onClick={() => setActiveTab(tab.id)} className={`flex items-center gap-2 ${activeTab === tab.id ? "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600" : "hover:bg-blue-50 dark:hover:bg-slate-700"}`}><tab.icon className="w-4 h-4" />{tab.label}</Button>))}
         </div>
-
         <div className="min-h-[400px]">
-          {activeTab === "today" && (
-            <ReflectionForm 
-              reflection={todayReflection} 
-              onSave={handleSaveReflection} 
-              isLoading={isLoading}
-            />
-          )}
-          {activeTab === "history" && (
-            <ReflectionHistory 
-              reflections={reflections}
-              selectedReflections={selectedReflections}
-              onToggleSelection={handleToggleReflectionSelection}
-              onDelete={handleDeleteReflection}
-              onGenerateInsights={generateAIInsightsForSelection}
-              isGenerating={isGeneratingInsights}
-              isLoading={isLoading}
-            />
-          )}
-          {activeTab === "insights" && (
-            <AIReflectionInsights
-              insights={aiInsights}
-              isGenerating={isGeneratingInsights}
-            />
-          )}
-          {activeTab === "mood" && (
-            <MoodTracker 
-              reflections={reflections} 
-              isLoading={isLoading} 
-            />
-          )}
+          {activeTab === "today" && <ReflectionForm reflection={todayReflection} onSave={handleSaveReflection} isLoading={isLoading} />}
+          {activeTab === "history" && <ReflectionHistory reflections={reflections} selectedReflections={selectedReflections} onToggleSelection={handleToggleReflectionSelection} onDelete={handleDeleteReflection} onGenerateInsights={generateAIInsightsForSelection} isGenerating={isGeneratingInsights} isLoading={isLoading} />}
+          {activeTab === "insights" && <AIReflectionInsights insights={aiInsights} isGenerating={isGeneratingInsights} />}
+          {activeTab === "mood" && <MoodTracker reflections={reflections} isLoading={isLoading} />}
         </div>
       </div>
     </div>

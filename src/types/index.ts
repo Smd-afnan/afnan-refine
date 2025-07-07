@@ -1,3 +1,4 @@
+
 export interface Habit {
   id: string;
   title: string;
@@ -15,6 +16,7 @@ export interface HabitLog {
   completion_date: string; // YYYY-MM-DD
   status: 'completed' | 'skipped' | 'pending';
   completed_at?: string; // ISO string
+  created_by: string;
 }
 
 export interface AIInsight {
@@ -47,6 +49,7 @@ export interface User {
   email: string;
   name: string;
   full_name?: string;
+  fcmToken?: string;
 }
 
 export interface OpeningDua {

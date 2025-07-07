@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -5,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Award, Flame, BookOpen, Heart, Shield } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { Habit, HabitLog, DailyReflection } from '@/types';
+import { useAuth } from '@/context/AuthContext';
 
 interface AchievementsBadgesProps {
   habits: Habit[];
@@ -13,6 +15,9 @@ interface AchievementsBadgesProps {
 }
 
 export default function AchievementsBadges({ habits, recentLogs, reflections }: AchievementsBadgesProps) {
+  const { user } = useAuth();
+  if (!user) return null;
+
   const achievements = [
     { name: "Perfect Week", icon: Shield, description: "Complete all active habits for 7 days in a row.", achieved: false },
     { name: "30-Day Streak", icon: Flame, description: "Maintain a streak of 30 days on any single habit.", achieved: habits.some(h => h.best_streak >= 30) },

@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -5,10 +6,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Volume2, VolumeX, Settings } from "lucide-react";
 import type { OpeningDua, UserSettings } from '@/types';
-import { getOpeningDuas, getMockUserSettings, updateMockUserSettings } from '@/lib/mockData';
+import { getOpeningDuas, getUserSettings, updateUserSettings } from '@/lib/mockData';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/AuthContext';
+import { Skeleton } from '../ui/skeleton';
 
 export default function OpeningDuaScreen({ onComplete }: { onComplete: () => Promise<void>; }) {
+  const { user } = useAuth();
   const [currentDua, setCurrentDua] = useState<OpeningDua | null>(null);
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -16,10 +20,11 @@ export default function OpeningDuaScreen({ onComplete }: { onComplete: () => Pro
   const { toast } = useToast();
 
   useEffect(() => {
+    if (!user) return;
     const loadDuaAndSettings = async () => {
       setIsLoading(true);
       try {
-        const settings = await getMockUserSettings();
+        const settings = await getUserSettings(user.uid);
         setUserSettings(settings);
 
         const allDuas = await getOpeningDuas();
@@ -47,22 +52,22 @@ export default function OpeningDuaScreen({ onComplete }: { onComplete: () => Pro
     };
 
     loadDuaAndSettings();
-  }, [onComplete, toast]);
+  }, [user, onComplete, toast]);
 
   const handleUpdateSetting = async (key: keyof UserSettings, value: boolean) => {
-    if (!userSettings) return;
+    if (!userSettings || !user) return;
     const newSettings = { ...userSettings, [key]: value };
     setUserSettings(newSettings);
-    await updateMockUserSettings({ [key]: value });
+    await updateUserSettings(user.uid, { [key]: value });
   };
 
   if (isLoading || !currentDua) {
     return (
       <div className="fixed inset-0 bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 flex items-center justify-center z-50 p-4">
         <div className="animate-pulse flex flex-col items-center">
-          <div className="w-16 h-16 bg-white/20 rounded-full mx-auto mb-4"></div>
-          <div className="w-64 h-4 bg-white/20 rounded mb-2"></div>
-          <div className="w-48 h-4 bg-white/20 rounded"></div>
+          <Skeleton className="w-16 h-16 bg-white/20 rounded-full mx-auto mb-4" />
+          <Skeleton className="w-64 h-4 bg-white/20 rounded mb-2" />
+          <Skeleton className="w-48 h-4 bg-white/20 rounded" />
         </div>
       </div>
     );
@@ -111,7 +116,7 @@ export default function OpeningDuaScreen({ onComplete }: { onComplete: () => Pro
             </Button>
           </div>
 
-          {showSettings && (
+          {showSettings && user && (
             <div className="bg-white/10 rounded-2xl p-6 backdrop-blur-sm text-left space-y-4">
               <h3 className="text-white font-semibold mb-4">Du&apos;a Settings</h3>
               <div className="grid grid-cols-1 gap-3 text-sm">

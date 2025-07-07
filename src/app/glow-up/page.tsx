@@ -8,19 +8,22 @@ import GlowUpTracker from "@/components/glowup/GlowUpTracker";
 import { Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/context/AuthContext";
 
 export default function GlowUpPage() {
+  const { user } = useAuth();
   const [habits, setHabits] = useState<Habit[]>([]);
   const [recentLogs, setRecentLogs] = useState<HabitLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
   const loadData = useCallback(async () => {
+    if (!user) return;
     setIsLoading(true);
     try {
       const [habitsData, logsData] = await Promise.all([
-        getHabits(),
-        getAllHabitLogs(),
+        getHabits(user.uid),
+        getAllHabitLogs(user.uid),
       ]);
       setHabits(habitsData);
       setRecentLogs(logsData);
@@ -33,7 +36,7 @@ export default function GlowUpPage() {
       });
     }
     setIsLoading(false);
-  }, [toast]);
+  }, [user, toast]);
 
   useEffect(() => {
     loadData();

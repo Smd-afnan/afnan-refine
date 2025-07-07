@@ -1,5 +1,5 @@
 'use server';
-/**
+/*
  * @fileOverview A conversational AI flow for the Islamic spiritual coach (Murabbi).
  *
  * - generateCoachingResponse - Generates a response in a conversation.

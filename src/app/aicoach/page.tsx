@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
@@ -8,11 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Brain, Sparkles, RefreshCw, MessageCircle, TrendingUp } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
-
 import InsightsList from "@/components/aicoach/InsightsList";
 import PatternAnalysis from "@/components/aicoach/PatternAnalysis";
 import CoachingChat from "@/components/aicoach/CoachingChat";
 import WeeklyReport from "@/components/aicoach/WeeklyReport";
+import { useAuth } from "@/context/AuthContext";
 
 interface FormattedInsight {
   id: string;
@@ -22,6 +23,7 @@ interface FormattedInsight {
 }
 
 export default function AICoachPage() {
+  const { user } = useAuth();
   const [insights, setInsights] = useState<FormattedInsight[]>([]);
   const [habits, setHabits] = useState<Habit[]>([]);
   const [recentLogs, setRecentLogs] = useState<HabitLog[]>([]);
@@ -31,14 +33,14 @@ export default function AICoachPage() {
   const { toast } = useToast();
 
   const loadCoachData = useCallback(async () => {
+    if (!user) return;
     setIsLoading(true);
     try {
       const [reflectionsData, habitsData, logsData] = await Promise.all([
-        getDailyReflections(),
-        getHabits(),
-        getAllHabitLogs()
+        getDailyReflections(user.uid),
+        getHabits(user.uid),
+        getAllHabitLogs(user.uid)
       ]);
-      
       const formattedInsights = reflectionsData
         .filter(i => i.muraqqabah_report)
         .map(i => ({
@@ -47,7 +49,6 @@ export default function AICoachPage() {
           report: i.muraqqabah_report as MuraqqabahReport,
           ago: formatDistanceToNow(new Date(i.reflection_date), { addSuffix: true })
         }));
-      
       setInsights(formattedInsights.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
       setHabits(habitsData);
       setRecentLogs(logsData);
@@ -56,35 +57,31 @@ export default function AICoachPage() {
       toast({ title: "Error", description: "Could not load coach data.", variant: "destructive" });
     }
     setIsLoading(false);
-  }, [toast]);
+  }, [user, toast]);
 
   useEffect(() => {
     loadCoachData();
   }, [loadCoachData]);
 
   const generateDailyInsight = async () => {
-    if (isGenerating) return;
-    
+    if (isGenerating || !user) return;
     setIsGenerating(true);
     toast({ title: "Generating Report", description: "The Murabbi is analyzing your progress..." });
     try {
       const today = format(new Date(), 'yyyy-MM-dd');
       const dayOfWeek = format(new Date(), 'eeee');
       
-      const allReflections = await getDailyReflections();
+      const allReflections = await getDailyReflections(user.uid);
       let todaysReflection = allReflections.find(r => r.reflection_date === today);
-
       if (!todaysReflection) {
-        todaysReflection = await createDailyReflection({ reflection_date: today } as Omit<DailyReflection, 'id' | 'created_by'>);
+        todaysReflection = await createDailyReflection(user.uid, { reflection_date: today } as Omit<DailyReflection, 'id' | 'created_by'>);
       }
 
-      const prayersToday = (await getDailyPrayerLogs(today))[0];
+      const [prayersToday] = await getDailyPrayerLogs(user.uid, today);
       const prayerStatus = prayersToday 
         ? { fajr: prayersToday.fajr_completed, dhuhr: prayersToday.dhuhr_completed, asr: prayersToday.asr_completed, maghrib: prayersToday.maghrib_completed, isha: prayersToday.isha_completed }
         : { fajr: false, dhuhr: false, asr: false, maghrib: false, isha: false };
-
       const activeHabits = habits.filter(h => h.is_active);
-
       const reportInput = {
         dayOfWeek,
         today,
@@ -94,11 +91,7 @@ export default function AICoachPage() {
       };
       
       const response = await generateMuraqqabahReport(reportInput);
-      
-      await updateDailyReflection(todaysReflection.id, {
-        muraqqabah_report: response
-      });
-
+      await updateDailyReflection(todaysReflection.id, { muraqqabah_report: response });
       toast({ title: "Report Ready!", description: "Your Muraqqabah Report for today is complete." });
       await loadCoachData();
     } catch (error) {
@@ -128,45 +121,18 @@ export default function AICoachPage() {
           <p className="text-lg text-purple-700 dark:text-purple-300 font-medium mb-6">
             A mirror to your soul, powered by wisdom.
           </p>
-          
-          <Button 
-            onClick={generateDailyInsight}
-            disabled={isGenerating}
-            className="bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 shadow-lg"
-          >
-            {isGenerating ? (
-              <>
-                <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                Analyzing Your Progress...
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-4 h-4 mr-2" />
-                Request Muraqqabah Report
-              </>
-            )}
+          <Button onClick={generateDailyInsight} disabled={isGenerating} className="bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 shadow-lg">
+            {isGenerating ? (<><RefreshCw className="w-4 h-4 mr-2 animate-spin" />Analyzing Your Progress...</>) : (<><Sparkles className="w-4 h-4 mr-2" />Request Muraqqabah Report</>)}
           </Button>
         </div>
-
         <div className="flex flex-wrap gap-2 border-b border-gray-200 dark:border-slate-700 pb-4">
-          {tabs.map((tab) => (
-            <Button
-              key={tab.id}
-              variant={activeTab === tab.id ? "secondary" : "ghost"}
-              onClick={() => setActiveTab(tab.id)}
-              className="flex items-center gap-2"
-            >
-              <tab.icon className="w-4 h-4" />
-              {tab.label}
-            </Button>
-          ))}
+          {tabs.map((tab) => (<Button key={tab.id} variant={activeTab === tab.id ? "secondary" : "ghost"} onClick={() => setActiveTab(tab.id)} className="flex items-center gap-2"><tab.icon className="w-4 h-4" />{tab.label}</Button>))}
         </div>
-
         <div className="min-h-[400px]">
           {activeTab === "insights" && <InsightsList insights={insights} isLoading={isLoading} />}
           {activeTab === "patterns" && <PatternAnalysis habits={habits} recentLogs={recentLogs} isLoading={isLoading} />}
- {activeTab === "chat" && <CoachingChat />}
- {activeTab === "report" && <WeeklyReport isLoading={isLoading} />}
+          {activeTab === "chat" && <CoachingChat />}
+          {activeTab === "report" && <WeeklyReport isLoading={isLoading} />}
         </div>
       </div>
     </div>

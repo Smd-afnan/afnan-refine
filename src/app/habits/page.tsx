@@ -8,13 +8,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, Target } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
 import HabitGrid from "@/components/habits/HabitGrid";
 import HabitForm from "@/components/habits/HabitForm";
 import HabitFilters from "@/components/habits/HabitFilters";
 import HabitStats from "@/components/habits/HabitStats";
+import { useAuth } from "@/context/AuthContext";
 
 export default function HabitsPage() {
+  const { user } = useAuth();
   const [habits, setHabits] = useState<Habit[]>([]);
   const [filteredHabits, setFilteredHabits] = useState<Habit[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -25,16 +26,17 @@ export default function HabitsPage() {
   const { toast } = useToast();
 
   const loadHabits = useCallback(async () => {
+    if (!user) return;
     setIsLoading(true);
     try {
-      const data = await getHabits();
+      const data = await getHabits(user.uid);
       setHabits(data);
     } catch (error) {
       console.error("Error loading habits:", error);
       toast({ title: "Error", description: "Could not load habits.", variant: "destructive" });
     }
     setIsLoading(false);
-  }, [toast]);
+  }, [user, toast]);
 
   useEffect(() => {
     loadHabits();
@@ -42,17 +44,14 @@ export default function HabitsPage() {
 
   const filterHabits = useCallback(() => {
     let currentHabits = habits;
-
     if (searchTerm) {
       currentHabits = currentHabits.filter(habit => 
         habit.title.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-
     if (selectedCategory !== "all") {
       currentHabits = currentHabits.filter(habit => habit.category === selectedCategory);
     }
-
     setFilteredHabits(currentHabits);
   }, [habits, searchTerm, selectedCategory]);
 
@@ -61,15 +60,15 @@ export default function HabitsPage() {
   }, [filterHabits]);
 
   const handleSubmit = async (habitData: Partial<Habit>) => {
+    if (!user) return;
     try {
       if (editingHabit) {
         await updateHabit(editingHabit.id, habitData);
         toast({ title: "Success", description: "Habit updated." });
       } else {
-        await createHabit(habitData as Omit<Habit, 'id' | 'streak_days' | 'best_streak' | 'created_by'>);
+        await createHabit(user.uid, habitData as Omit<Habit, 'id' | 'streak_days' | 'best_streak' | 'created_by'>);
         toast({ title: "Success", description: "Habit created." });
       }
-      
       setShowForm(false);
       setEditingHabit(null);
       await loadHabits();
@@ -100,7 +99,6 @@ export default function HabitsPage() {
   return (
     <div className="p-4 lg:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header */}
         <div className="text-center lg:text-left">
           <div className="flex items-center justify-center lg:justify-start gap-3 mb-4">
             <Target className="w-8 h-8 text-emerald-600" />
@@ -112,11 +110,7 @@ export default function HabitsPage() {
             Build discipline through consistent, meaningful actions.
           </p>
         </div>
-
-        {/* Stats Overview */}
         <HabitStats habits={habits} />
-
-        {/* Search and Filters */}
         <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
           <div className="flex-1 w-full max-w-md">
             <div className="relative">
@@ -129,7 +123,6 @@ export default function HabitsPage() {
               />
             </div>
           </div>
-          
           <div className="flex gap-3 w-full lg:w-auto">
             <HabitFilters 
               selectedCategory={selectedCategory}
@@ -147,8 +140,6 @@ export default function HabitsPage() {
             </Button>
           </div>
         </div>
-
-        {/* Habit Form */}
         {showForm && (
           <HabitForm
             habit={editingHabit}
@@ -159,8 +150,6 @@ export default function HabitsPage() {
             }}
           />
         )}
-
-        {/* Habits Grid */}
         <HabitGrid
           habits={filteredHabits}
           onEdit={handleEdit}

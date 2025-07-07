@@ -1,15 +1,20 @@
+
 "use client";
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { CheckSquare, Target } from 'lucide-react';
 import type { Habit } from '@/types';
+import { useAuth } from '@/context/AuthContext';
 
 interface PersonalGoalsProps {
   habits: Habit[];
 }
 
 export default function PersonalGoals({ habits }: PersonalGoalsProps) {
+  const { user } = useAuth();
+  if (!user) return null;
+
   // Mock goals for now
   const goals = [
     { text: "Establish all 5 daily prayers consistently.", completed: habits.some(h => h.title.includes("Prayer") && h.streak_days >= 7) },

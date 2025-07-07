@@ -1,0 +1,16 @@
+name: Cron Job for Habit Reminders
+on:
+  schedule:
+    # Runs every minute. You can change this to a less frequent interval.
+    - cron: '* * * * *'
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  cron:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Cron Endpoint
+        run: |
+          curl --request GET \
+          --url '${{ secrets.PRODUCTION_URL }}/api/cron?secret=${{ secrets.CRON_SECRET }}' \
+          --fail

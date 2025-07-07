@@ -1,5 +1,7 @@
 
 import { initializeApp, getApp, getApps } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 import { getMessaging, getToken, onMessage, type MessagePayload } from "firebase/messaging";
 
 const firebaseConfig = {
@@ -13,10 +15,12 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const fcmMessaging = typeof window !== 'undefined' && firebaseConfig.apiKey ? getMessaging(app) : null;
+const auth = getAuth(app);
+const db = getFirestore(app);
+const fcmMessaging = typeof window !== 'undefined' && process.env.NEXT_PUBLIC_FIREBASE_API_KEY ? getMessaging(app) : null;
 
 export const registerServiceWorker = () => {
-  if ('serviceWorker'in navigator && typeof window !== 'undefined' && firebaseConfig.apiKey) {
+  if ('serviceWorker'in navigator && typeof window !== 'undefined' && process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
     const firebaseConfigParams = encodeURIComponent(JSON.stringify(firebaseConfig));
     navigator.serviceWorker
       .register(`/sw.js?firebaseConfig=${firebaseConfigParams}`)
@@ -29,7 +33,7 @@ export const registerServiceWorker = () => {
   }
 };
 
-export const requestNotificationPermission = async () => {
+export const requestNotificationPermission = async (userId: string) => {
   if (!fcmMessaging) {
       console.log("Firebase Messaging is not available. Have you configured your .env file?");
       return null;
@@ -49,9 +53,9 @@ export const requestNotificationPermission = async () => {
 
       if (fcmToken) {
         console.log('FCM Token:', fcmToken);
-        // The token is now available on the client.
-        // The now-removed server-side function would have saved this.
-        // For local notifications, we don't need to send it anywhere.
+        // Save the token to the user's document in Firestore
+        const { doc, setDoc } = await import("firebase/firestore");
+        await setDoc(doc(db, 'users', userId), { fcmToken }, { merge: true });
         return fcmToken;
       } else {
         console.log('No registration token available. Request permission to generate one.');
@@ -77,4 +81,4 @@ export const onMessageListener = () =>
     }
   });
 
-export { app };
+export { app, auth, db };

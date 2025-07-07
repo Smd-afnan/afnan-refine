@@ -1,5 +1,7 @@
 'use server';
 
+'use server';
+
 /**
  * @fileOverview AI flow for generating a Muraqqabah (spiritual guidance) report.
  *

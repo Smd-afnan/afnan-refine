@@ -3,17 +3,11 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns";
-import { 
-  Sun,
-  Moon,
-  Sparkles
-} from "lucide-react";
+import { Sun, Moon, Sparkles } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-
 import { getHabits, getHabitLogs, getAIInsights, islamicWisdoms } from "@/lib/mockData";
 import type { Habit, HabitLog, AIInsight } from "@/types";
 import { useTranslation } from "@/lib/i18n/useTranslation";
-
 import DashboardStats from "@/components/dashboard/DashboardStats";
 import TodayHabits from "@/components/dashboard/TodayHabits";
 import AIInsightCard from "@/components/dashboard/AIInsightCard";
@@ -24,8 +18,10 @@ import DignityNudgeSection from "@/components/dashboard/DignityNudgeSection";
 import BarakahBoostCard from "@/components/dashboard/BarakahBoostCard";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Dashboard() {
+  const { user } = useAuth();
   const [habits, setHabits] = useState<Habit[]>([]);
   const [todayLogs, setTodayLogs] = useState<HabitLog[]>([]);
   const [insights, setInsights] = useState<AIInsight[]>([]);
@@ -45,11 +41,12 @@ export default function Dashboard() {
   }, [t]);
   
   const loadDashboardData = useCallback(async () => {
+    if (!user) return;
     setIsLoading(true);
     try {
       const [habitsData, logsData, insightsData] = await Promise.all([
-        getHabits(),
-        getHabitLogs(today),
+        getHabits(user.uid),
+        getHabitLogs(user.uid, today),
         getAIInsights(),
       ]);
       
@@ -68,7 +65,7 @@ export default function Dashboard() {
       setInsights([]);
     }
     setIsLoading(false);
-  }, [today, toast]);
+  }, [user, today, toast]);
 
   useEffect(() => {
     loadDashboardData();
@@ -149,7 +146,7 @@ export default function Dashboard() {
               <Moon className="w-8 h-8 text-indigo-500" />
             )}
             <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-emerald-800 to-emerald-600 dark:from-emerald-400 dark:to-emerald-600 bg-clip-text text-transparent font-headline">
-              {greeting}! 🌟
+              {greeting}, {user?.displayName}!
             </h1>
           </div>
           <p className="text-lg text-emerald-700 dark:text-emerald-300 font-medium">

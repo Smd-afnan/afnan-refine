@@ -1,9 +1,11 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { NotificationProvider } from '@/components/notifications/NotificationProvider';
 import MainLayout from '@/components/layout/MainLayout';
 import { Inter, Space_Grotesk, Amiri } from 'next/font/google';
+import { AuthProvider } from '@/context/AuthContext';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -41,10 +43,12 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
       </head>
       <body className="font-body antialiased">
-        <NotificationProvider>
-          <MainLayout>{children}</MainLayout>
-        </NotificationProvider>
-        <Toaster />
+        <AuthProvider>
+          <NotificationProvider>
+            <MainLayout>{children}</MainLayout>
+          </NotificationProvider>
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );
