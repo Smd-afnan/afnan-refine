@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
@@ -119,6 +118,7 @@ export default function ReflectionPage() {
     } catch (error) {
       console.error("Error generating AI insights:", error);
       setAiInsights({ soul_reflection: '', inner_meaning: '', todays_mujahadah: '', barakah_boost: '', error: "Sorry, I couldn't generate insights at this moment. Please try again later." });
+      setActiveTab("insights");
     }
     setIsGeneratingInsights(false);
   };

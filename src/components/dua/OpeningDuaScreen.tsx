@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -9,7 +8,7 @@ import type { OpeningDua, UserSettings } from '@/types';
 import { getOpeningDuas, getMockUserSettings, updateMockUserSettings } from '@/lib/mockData';
 import { useToast } from '@/hooks/use-toast';
 
-export default function OpeningDuaScreen({ onComplete }: { onComplete: () => void; }) {
+export default function OpeningDuaScreen({ onComplete }: { onComplete: () => Promise<void>; }) {
   const [currentDua, setCurrentDua] = useState<OpeningDua | null>(null);
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);

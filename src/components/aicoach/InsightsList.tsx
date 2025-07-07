@@ -6,9 +6,10 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Skeleton } from '@/components/ui/skeleton';
 import { Lightbulb, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
+import type { MuraqqabahReport } from '@/types';
 
 interface InsightsListProps {
-  insights: { id: string; date: string; ago: string; report: { soul_reflection: string; inner_meaning: string; mujahadah: string; barakah_boost: string } }[];
+  insights: { id: string; date: string; ago: string; report: MuraqqabahReport }[];
   isLoading: boolean;
 }
 

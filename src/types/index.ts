@@ -67,6 +67,7 @@ export interface IslamicWisdom {
 export interface DignityDare {
   id: string;
   level: number;
+  text: string;
   title: string;
   description: string;
   category: 'connection' | 'generosity' | 'reflection' | 'self-discipline';

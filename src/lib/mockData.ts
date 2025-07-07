@@ -179,7 +179,7 @@ export const getBarakahBoostWisdom = async (): Promise<IslamicWisdom> => {
 
 export const mockDignityDares: DignityDare[] = [
     { id: 'dare-1', level: 1, title: 'Smile at a Stranger', description: 'Share a genuine smile with a stranger you pass by today. It\'s a form of charity.', category: 'connection' },
-    { id: 'dare-2', level: 1, title: 'Secret Sadaqa', description: 'Give a small amount of charity secretly, where only Allah knows.', category: 'generosity' },
+    { id: 'dare-2', level: 1, title: 'Secret Sadaqa', description: 'Give a small amount of charity secretly, where only Allah knows.', category: 'generosity', text: 'Secret Sadaqa' },
 ];
 export const getDignityDare = async (level: number): Promise<DignityDare | null> => {
     const dare = mockDignityDares.find(d => d.level === level) || null;

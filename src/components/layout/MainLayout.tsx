@@ -174,7 +174,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   };
   
   if (showDuaScreen && user) {
-    return <OpeningDuaScreen onComplete={handleDuaComplete} user={user} />;
+    return <OpeningDuaScreen onComplete={handleDuaComplete} />;
   }
 
   if (!duaCheckComplete) {

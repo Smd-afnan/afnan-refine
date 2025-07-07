@@ -1,8 +1,7 @@
-
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import type { DailyReflection, Habit, HabitLog } from "@/types";
+import type { DailyReflection, Habit, HabitLog, MuraqqabahReport } from "@/types";
 import { getDailyReflections, createDailyReflection, updateDailyReflection, getHabits, getAllHabitLogs, getDailyPrayerLogs } from "@/lib/mockData";
 import { generateMuraqqabahReport } from "@/ai/flows/generate-muraqqabah-report";
 import { Button } from "@/components/ui/button";
@@ -15,9 +14,15 @@ import PatternAnalysis from "@/components/aicoach/PatternAnalysis";
 import CoachingChat from "@/components/aicoach/CoachingChat";
 import WeeklyReport from "@/components/aicoach/WeeklyReport";
 
+interface FormattedInsight {
+  id: string;
+  date: string;
+  report: MuraqqabahReport;
+  ago: string;
+}
+
 export default function AICoachPage() {
-  // TODO: Replace 'any' with a more specific type for insights if possible
-  const [insights, setInsights] = useState<any[]>([]); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const [insights, setInsights] = useState<FormattedInsight[]>([]);
   const [habits, setHabits] = useState<Habit[]>([]);
   const [recentLogs, setRecentLogs] = useState<HabitLog[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -39,7 +44,7 @@ export default function AICoachPage() {
         .map(i => ({
           id: i.id,
           date: i.reflection_date,
-          report: i.muraqqabah_report,
+          report: i.muraqqabah_report as MuraqqabahReport,
           ago: formatDistanceToNow(new Date(i.reflection_date), { addSuffix: true })
         }));
       
