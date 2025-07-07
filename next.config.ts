@@ -1,3 +1,4 @@
+
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
@@ -15,16 +16,19 @@ const nextConfig: NextConfig = {
   webpack: (config, { isServer }) => {
     config.experiments = { ...config.experiments, asyncWebAssembly: true, topLevelAwait: true };
 
-    config.resolve.fallback = {
-        ...config.resolve.fallback,
-        stream: require.resolve('stream-browserify'),
-        crypto: require.resolve('crypto-browserify'),
-        path: require.resolve('path-browserify'),
-        os: require.resolve('os-browserify/browser'),
-        constants: require.resolve('constants-browserify'),
-        util: require.resolve('util'),
-        fs: false, 
-    };
+    // Only apply client-side fallbacks for browser environment
+    if (!isServer) {
+        config.resolve.fallback = {
+            ...config.resolve.fallback,
+            stream: require.resolve('stream-browserify'),
+            crypto: require.resolve('crypto-browserify'),
+            path: require.resolve('path-browserify'),
+            os: require.resolve('os-browserify/browser'),
+            constants: require.resolve('constants-browserify'),
+            util: require.resolve('util'),
+            fs: false, 
+        };
+    }
     
     return config;
   },
