@@ -2,7 +2,7 @@
 import { initializeApp, getApp, getApps } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-import { getMessaging, getToken, onMessage, type MessagePayload } from "firebase/messaging";
+import { getMessaging, getToken, onMessage, type MessagePayload, type Messaging } from "firebase/messaging";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -17,7 +17,19 @@ const firebaseConfig = {
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 const db = getFirestore(app);
-const fcmMessaging = typeof window !== 'undefined' && process.env.NEXT_PUBLIC_FIREBASE_API_KEY ? getMessaging(app) : null;
+
+// Lazy initialization for Firebase Messaging (client-side only)
+let fcmMessaging: Messaging | null = null;
+const getFcmMessaging = () => {
+  if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+    if (!fcmMessaging) {
+      fcmMessaging = getMessaging(app);
+    }
+    return fcmMessaging;
+  }
+  return null;
+}
+
 
 export const registerServiceWorker = () => {
   if ('serviceWorker'in navigator && typeof window !== 'undefined' && process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
@@ -34,7 +46,8 @@ export const registerServiceWorker = () => {
 };
 
 export const requestNotificationPermission = async (userId: string) => {
-  if (!fcmMessaging) {
+  const messaging = getFcmMessaging();
+  if (!messaging) {
       console.log("Firebase Messaging is not available. Have you configured your .env file?");
       return null;
   }
@@ -49,7 +62,7 @@ export const requestNotificationPermission = async (userId: string) => {
         return null;
       }
       
-      const fcmToken = await getToken(fcmMessaging, { vapidKey });
+      const fcmToken = await getToken(messaging, { vapidKey });
 
       if (fcmToken) {
         console.log('FCM Token:', fcmToken);
@@ -74,8 +87,9 @@ export const requestNotificationPermission = async (userId: string) => {
 // This function will listen for messages when the app is in the foreground
 export const onMessageListener = () =>
   new Promise<MessagePayload>((resolve) => {
-    if(fcmMessaging) {
-        onMessage(fcmMessaging, (payload) => {
+    const messaging = getFcmMessaging();
+    if(messaging) {
+        onMessage(messaging, (payload) => {
             resolve(payload);
         });
     }
